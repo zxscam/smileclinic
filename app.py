@@ -1276,5 +1276,30 @@ def admin_edit_schedule():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        print("✅ База данных MySQL готова!")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+        from models import User, Doctor, Service, Promotion
+        from werkzeug.security import generate_password_hash
+        from datetime import datetime, timedelta, date
+        
+        # Создаём данные только если их нет
+        if not User.query.first():
+            # Админ
+            db.session.add(User(username='admin', email='admin@s.ru', password_hash=generate_password_hash('admin'), role='admin'))
+            
+            # Врачи
+            for uname, f, l, s in [('petrov.ivan','Иван','Петров','Терапевт'),('sidorova.maria','Мария','Сидорова','Ортодонт'),('ivanov.alexey','Алексей','Иванов','Хирург')]:
+                u = User(username=uname, email=f'{uname}@c.ru', password_hash=generate_password_hash('password'), role='doctor')
+                db.session.add(u); db.session.flush()
+                db.session.add(Doctor(user_id=u.id, first_name=f, last_name=l, specialty=s))
+            
+            # Услуги
+            for n, d, dur, p in [('Консультация','Осмотр',30,1500),('Лечение кариеса','Пломба',60,3500),('Чистка','Ультразвук',45,3000),('Удаление','Хирургия',60,5000),('Брекеты','Установка',90,25000),('Отбеливание','Zoom',90,15000)]:
+                db.session.add(Service(name=n, description=d, duration=dur, price=p))
+            
+            t = date.today()
+            for ti, d, dis, si in [('Скидка 20%','Новым',20,1),('Чистка -30%','Акция',30,3),('Рассрочка 0%','Брекеты',15,5),('Приведи друга','-10%',10,None)]:
+                db.session.add(Promotion(title=ti, description=d, discount_percent=dis, service_id=si, start_date=t, end_date=t+timedelta(30), is_active=True))
+            
+            db.session.commit()
+            print("ДАННЫЕ ЗАГРУЖЕНЫ!")
+    
+    app.run(host='0.0.0.0', port=10000)
