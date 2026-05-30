@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Личный кабинет — SmileClinic{% endblock %}
+
+{% block content %}
+
+<section>
+
+    {% if patient %}
+    <div style="background:#fff;... border:1px solid #e2e8f0; border-radius:16px; padding:24px; margin-bottom:24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+        <div style="width:70px; height:70px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff;">{{ patient.last_name[:1] }}{{ patient.first_name[:1] }}</div>
+        <div style="flex:1;">
+            <h1 style="font-size:22px; font-weight:700; color:#0b132b; margin:0;">{{ patient.full_name }}</h1>
+            <p style="color:#94a3b8; font-size:14px; margin:4px 0 0;">{{ patient.phone }} · {{ patient.date_of_birth.strftime('%d.%m.%Y') if patient.date_of_birth else '' }}</p>
+        </div>
+        <a href="{{ url_for('appointment') }}" style="background:#2563eb; color:#fff; padding:10px 20px; border-radius:10px; text-decoration:none; font-weight:600; font-size:14px;">Записаться</a>
+    </div>
+    {% elif doctor %}
+    <div style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:24px; margin-bottom:24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+        <div style="width:70px; height:70px; border-radius:50%; background:#2563eb; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; color:#fff;">{{ doctor.last_name[:1] }}{{ doctor.first_name[:1] }}</div>
+        <div style="flex:1;">
+            <h1 style="font-size:22px; font-weight:700; color:#0b132b; margin:0;">{{ doctor.full_name }}</h1>
+            <p style="color:#94a3b8; font-size:14px; margin:4px 0 0;">{{ doctor.specialty }} · ⭐ {{ doctor.average_rating }}</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <div style="display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;">
+        <button onclick="filterApt('all', this)" style="padding:8px 18px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:#2563eb; color:#fff;">Все</button>
+        <button onclick="filterApt('scheduled', this)" style="padding:8px 18px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:#fff; color:#64748b;">Предстоящие</button>
+        <button onclick="filterApt('completed', this)" style="padding:8px 18px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:#fff; color:#64748b;">Выполненные</button>
+        <button onclick="filterApt('cancelled', this)" style="padding:8px 18px; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; border:1px solid #e2e8f0; background:#fff; color:#64748b;">Отменённые</button>
+    </div>
+
+    <div id="aptList">
+        {% if appointments %}
+            {% for apt in appointments %}
+            <div data-status="{{ apt.status }}" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin-bottom:8px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div style="width:55px; height:55px; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; {% if apt.status=='scheduled' %}background:#eff6ff; color:#2563eb;{% elif apt.status=='completed' %}background:#f0fdf4; color:#16a34a;{% else %}background:#fef2f2; color:#ef4444;{% endif %}">
+                    <span style="font-size:18px;">{{ apt.appointment_date.strftime('%d') }}</span>
+                    <span style="font-size:10px;">{{ apt.appointment_date.strftime('%b') }}</span>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-weight:600; color:#0b132b;">{{ apt.appointment_time.strftime('%H:%M') }}</div>
+                    <div style="color:#64748b; font-size:14px;">{% if patient %}{{ apt.doctor.full_name }}{% else %}{{ apt.patient.full_name }}{% endif %}</div>
+                    <div style="color:#64748b; font-size:13px;">{{ apt.service.name }}</div>
+                </div>
+                <div style="text-align:right;">
+    {% if apt.discount_applied > 0 %}
+        <div style="text-decoration:line-through; color:#94a3b8; font-size:11px;">{{ apt.service.price }} ₽</div>
+        <div style="font-weight:700; color:#16a34a; font-size:15px;">
+            {{ (apt.service.price * (1 - apt.discount_applied / 100))|round|int }} ₽
+        </div>
+        <div style="font-size:10px; color:#16a34a; font-weight:600;">-{{ apt.discount_applied }}%</div>
+    {% else %}
+        <div style="font-weight:700; color:#2563eb;">{{ apt.service.price }} ₽</div>
+    {% endif %}
+</div>
+                <div>
+                    {% if apt.status == 'scheduled' %}
+                        <a href="{{ url_for('cancel_appointment', appointment_id=apt.id) }}" onclick="return confirm('Отменить?')" style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; color:#ef4444; border:1px solid #ef4444;">Отменить</a>
+                    {% elif apt.status == 'completed' and not apt.review and patient %}
+                        <a href="{{ url_for('add_review', appointment_id=apt.id) }}" style="padding:6px 14px; border-radius:8px; font-size:12px; font-weight:600; text-decoration:none; color:#2563eb; border:1px solid #2563eb;">Оставить отзыв</a>
+                    {% elif apt.status == 'completed' and apt.review %}
+                        <span style="color:#16a34a; font-size:12px; font-weight:600;">✓ Отзыв оставлен</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align:center; padding:40px; background:#fff; border:1px solid #e2e8f0; border-radius:16px; color:#94a3b8;">
+                <p>Нет записей</p>
+            </div>
+        {% endif %}
+    </div>
+
+</section>
+
+<script>
+function filterApt(status, btn) {
+    document.querySelectorAll('button[onclick^="filterApt"]').forEach(b => {
+        b.style.background = '#fff';
+        b.style.color = '#64748b';
+    });
+    btn.style.background = '#2563eb';
+    btn.style.color = '#fff';
+    
+    document.querySelectorAll('[data-status]').forEach(card => {
+        card.style.display = (status === 'all' || card.dataset.status === status) ? 'flex' : 'none';
+    });
+}
+</script>
+
+{% endblock %}

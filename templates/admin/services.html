@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Услуги — Админ{% endblock %}
+{% block content %}
+
+<style>
+    .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+    .admin-title { font-size: 28px; font-weight: 700; color: #0b132b; }
+    .admin-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+    .admin-input { padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; width: 100%; margin-bottom: 8px; }
+    .admin-btn { padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; cursor: pointer; border: 1px solid; display: inline-block; }
+    .admin-btn.blue { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .admin-btn.red { color: #ef4444; border-color: #ef4444; background: none; }
+    .admin-btn.gray { color: #64748b; border-color: #e2e8f0; background: none; }
+</style>
+
+<a href="{{ url_for('admin_panel') }}" class="admin-btn gray" style="margin-bottom:16px;">← Назад</a>
+
+<div class="admin-header">
+    <h1 class="admin-title">Услуги</h1>
+    <button onclick="document.getElementById('addForm').style.display='block'" class="admin-btn blue">+ Добавить услугу</button>
+</div>
+
+<!-- Форма добавления -->
+<div id="addForm" class="admin-card" style="display:none;">
+    <h3 style="margin-bottom:12px;">Новая услуга</h3>
+    <form method="POST" action="{{ url_for('admin_add_service') }}">
+        <input type="text" name="name" class="admin-input" placeholder="Название услуги" required>
+        <input type="text" name="description" class="admin-input" placeholder="Описание">
+        <input type="number" name="duration" class="admin-input" placeholder="Длительность (мин)" required>
+        <input type="number" name="price" class="admin-input" placeholder="Цена (₽)" required>
+        <button type="submit" class="admin-btn blue">Сохранить</button>
+        <button type="button" onclick="document.getElementById('addForm').style.display='none'" class="admin-btn gray">Отмена</button>
+    </form>
+</div>
+
+<!-- Список услуг -->
+<div class="admin-card">
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Название</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Длительность</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Цена</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in services %}
+            <tr>
+                <td style="padding:10px; font-weight:600;">{{ s.name }}</td>
+                <td style="padding:10px;">{{ s.duration }} мин</td>
+                <td style="padding:10px;">{{ s.price }} ₽</td>
+                <td style="padding:10px;">
+                    <a href="{{ url_for('admin_delete_service', service_id=s.id) }}" class="admin-btn red" onclick="return confirm('Удалить услугу?')">Удалить</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

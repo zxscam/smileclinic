@@ -1,0 +1,230 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Запись на приём — SmileClinic{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-label {
+        font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+        color: #7c93c8; margin-bottom: 14px; font-weight: 600;
+    }
+    .page-title {
+        font-size: 48px; font-weight: 800; color: var(--text);
+        letter-spacing: -2px; margin-bottom: 16px; line-height: 1.1;
+    }
+    .page-subtitle { color: var(--text-secondary); font-size: 16px; margin-bottom: 50px; }
+    .appointment-layout { display: grid; grid-template-columns: 1fr 400px; gap: 40px; align-items: start; }
+    .form-card { background: white; border: 1px solid var(--border); border-radius: 28px; padding: 40px; }
+    .form-section-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 24px; padding-bottom: 12px; border-bottom: 2px solid #f4f7ff; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .form-input { width: 100%; padding: 16px 20px; border: 2px solid var(--border); border-radius: 16px; font-size: 15px; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; margin-bottom: 24px; }
+    .form-input:focus { outline: none; border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(79,140,255,0.08); }
+    .form-select { width: 100%; padding: 16px 20px; border: 2px solid var(--border); border-radius: 16px; font-size: 15px; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; margin-bottom: 24px; appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c93c8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 20px center; }
+    .form-select:focus { outline: none; border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(79,140,255,0.08); }
+    .form-textarea { width: 100%; padding: 16px 20px; border: 2px solid var(--border); border-radius: 16px; font-size: 15px; background: var(--bg-secondary); color: var(--text); transition: all 0.3s; margin-bottom: 24px; resize: vertical; min-height: 100px; font-family: inherit; }
+    .form-textarea:focus { outline: none; border-color: var(--accent); background: white; box-shadow: 0 0 0 4px rgba(79,140,255,0.08); }
+    .submit-btn { width: 100%; padding: 18px; border-radius: 18px; background: linear-gradient(135deg, #5b8cff, #2f6fff); color: white; font-weight: 700; font-size: 16px; border: none; cursor: pointer; transition: all 0.3s; box-shadow: 0 10px 30px rgba(79,140,255,0.25); }
+    .submit-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(79,140,255,0.35); }
+    .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    .info-card { background: white; border: 1px solid var(--border); border-radius: 28px; padding: 36px; position: sticky; top: 80px; }
+    .info-card-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 16px; border-bottom: 2px solid #f4f7ff; }
+    .info-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .info-label { color: var(--text-secondary); font-weight: 500; }
+    .info-value { color: var(--text); font-weight: 600; text-align: right; max-width: 60%; word-break: break-word; }
+    .info-value.price { font-size: 24px; font-weight: 800; color: var(--accent); }
+    .info-value.rating { color: var(--amber); font-weight: 700; }
+    .promo-badge { background: #fff8e1; border: 1px solid #ffe082; border-radius: 16px; padding: 18px; margin-top: 20px; text-align: center; }
+    .promo-badge-title { font-weight: 700; color: #b8860b; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .promo-badge-name { font-weight: 600; color: var(--text); font-size: 14px; margin-bottom: 6px; }
+    .promo-badge-discount { font-size: 28px; font-weight: 800; color: #ff6b00; }
+    .promo-price { margin-top: 8px; font-size: 13px; color: #64748b; }
+    .promo-price span { font-weight: 700; color: #16a34a; }
+    .time-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; margin-bottom: 28px; }
+    .time-slot { padding: 14px 10px; text-align: center; border: 2px solid var(--border); border-radius: 14px; cursor: pointer; font-size: 14px; font-weight: 600; color: var(--text-secondary); transition: all 0.2s; background: white; }
+    .time-slot:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); transform: translateY(-2px); }
+    .time-slot.selected { border-color: var(--accent); background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(79,140,255,0.3); }
+    .time-slot-empty { grid-column: 1 / -1; padding: 30px; text-align: center; color: #bcc6da; font-size: 15px; background: var(--bg-secondary); border-radius: 14px; }
+    @media (max-width: 900px) { .appointment-layout { grid-template-columns: 1fr; } .info-card { position: static; } .page-title { font-size: 36px; } }
+</style>
+
+<section style="margin-bottom: 80px;">
+    
+    <div class="page-label">Онлайн-запись</div>
+    <h1 class="page-title">Запись на приём</h1>
+    <p class="page-subtitle">Выберите врача, услугу и удобное время для посещения</p>
+    
+    <div class="appointment-layout">
+        
+        <div class="form-card fade-up">
+            <form method="POST" action="{{ url_for('appointment') }}" id="appointmentForm">
+                
+                <div class="form-section-title">Шаг 1. Выберите врача</div>
+                <label class="form-label">Врач</label>
+                <select class="form-select" id="doctor_id" name="doctor_id" required onchange="loadAvailableSlots(); updateDoctorInfo();">
+                    <option value="">Выберите врача...</option>
+                    {% for doctor in doctors %}
+                    <option value="{{ doctor.id }}" data-name="{{ doctor.last_name }} {{ doctor.first_name }}" data-specialty="{{ doctor.specialty }}" data-rating="{{ doctor.average_rating }}">
+                        {{ doctor.last_name }} {{ doctor.first_name }}{% if doctor.specialty %} — {{ doctor.specialty }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <label class="form-label">Дата приёма</label>
+                <input type="date" class="form-input" id="date" name="date" required onchange="loadAvailableSlots(); document.getElementById('infoDate').textContent = this.value || '—';">
+                
+                <div class="form-section-title">Шаг 2. Выберите время</div>
+                <div id="timeSlots" class="time-slots">
+                    <div class="time-slot-empty">Сначала выберите врача и дату</div>
+                </div>
+                <input type="hidden" id="time" name="time" required>
+                
+                <div class="form-section-title">Шаг 3. Выберите услугу</div>
+                <label class="form-label">Услуга</label>
+                <select class="form-select" id="service_id" name="service_id" required onchange="updateServiceInfo()">
+                    <option value="">Выберите услугу...</option>
+                    {% for service in services %}
+                    <option value="{{ service.id }}" data-name="{{ service.name }}" data-price="{{ service.price }}" data-duration="{{ service.duration }}">
+                        {{ service.name }} — {{ service.price }} ₽ ({{ service.duration }} мин)
+                    </option>
+                    {% endfor %}
+                </select>
+                
+                <label class="form-label">Примечания</label>
+                <textarea class="form-textarea" name="notes" placeholder="Опишите ваши симптомы, жалобы или особые пожелания (необязательно)"></textarea>
+                
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>Записаться на приём</button>
+            </form>
+        </div>
+        
+        <div class="info-card fade-up">
+            <div class="info-card-title">Детали записи</div>
+            
+            <div class="info-item"><span class="info-label">Врач</span><span class="info-value" id="infoDoctor">—</span></div>
+            <div class="info-item"><span class="info-label">Специализация</span><span class="info-value" id="infoSpecialty" style="font-weight:500;">—</span></div>
+            <div class="info-item"><span class="info-label">Рейтинг врача</span><span class="info-value rating" id="infoRating">—</span></div>
+            <div class="info-item"><span class="info-label">Дата</span><span class="info-value" id="infoDate">—</span></div>
+            <div class="info-item"><span class="info-label">Время</span><span class="info-value" id="infoTime">—</span></div>
+            <div class="info-item"><span class="info-label">Услуга</span><span class="info-value" id="infoService">—</span></div>
+            <div class="info-item"><span class="info-label">Длительность</span><span class="info-value" id="infoDuration">—</span></div>
+            <div class="info-item" style="border-bottom:none; padding-top:16px;">
+                <span class="info-label" style="font-size:15px; font-weight:700; color:var(--text);">Стоимость</span>
+                <span class="info-value price" id="infoPrice">—</span>
+            </div>
+            
+            {% if active_promotion %}
+<div class="promo-badge">
+    <div class="promo-badge-title">Применена акция</div>
+    <div class="promo-badge-name">{{ active_promotion.title }}</div>
+    <div class="promo-badge-discount">-{{ active_promotion.discount_percent }}%</div>
+    {% if active_promotion.service_id %}
+    <div style="font-size:12px; color:#64748b; margin-top:4px;">Только на услугу: {{ active_promotion.service.name }}</div>
+    {% else %}
+    <div style="font-size:12px; color:#64748b; margin-top:4px;">На все услуги</div>
+    {% endif %}
+    <div class="promo-price">Цена со скидкой: <span id="discountPrice">—</span></div>
+</div>
+{% endif %}
+        </div>
+        
+    </div>
+</section>
+
+<script>
+function updateDoctorInfo() {
+    const select = document.getElementById('doctor_id');
+    const option = select.selectedOptions[0];
+    if (option && option.value) {
+        document.getElementById('infoDoctor').textContent = option.dataset.name || option.text.split(' — ')[0];
+        document.getElementById('infoSpecialty').textContent = option.dataset.specialty || 'Стоматолог';
+        const rating = parseFloat(option.dataset.rating) || 0;
+        document.getElementById('infoRating').textContent = rating > 0 ? '★ ' + rating.toFixed(1) : 'Нет оценок';
+        document.getElementById('infoRating').style.color = rating > 0 ? 'var(--amber)' : '#bcc6da';
+    } else {
+        document.getElementById('infoDoctor').textContent = '—';
+        document.getElementById('infoSpecialty').textContent = '—';
+        document.getElementById('infoRating').textContent = '—';
+    }
+}
+
+function loadAvailableSlots() {
+    const doctorId = document.getElementById('doctor_id').value;
+    const date = document.getElementById('date').value;
+    const timeSlotsDiv = document.getElementById('timeSlots');
+    const submitBtn = document.getElementById('submitBtn');
+    const timeInput = document.getElementById('time');
+    document.getElementById('infoDate').textContent = date || '—';
+    document.getElementById('infoTime').textContent = '—';
+    if (!doctorId || !date) {
+        timeSlotsDiv.innerHTML = '<div class="time-slot-empty">Сначала выберите врача и дату</div>';
+        submitBtn.disabled = true; timeInput.value = ''; return;
+    }
+    timeSlotsDiv.innerHTML = '<div class="time-slot-empty" style="color:var(--accent);">Загрузка...</div>';
+    fetch('/get-available-slots/' + doctorId + '/' + date)
+        .then(r => r.json())
+        .then(data => {
+            if (data.message) { timeSlotsDiv.innerHTML = '<div class="time-slot-empty">' + data.message + '</div>'; submitBtn.disabled = true; timeInput.value = ''; return; }
+            if (data.slots.length === 0) { timeSlotsDiv.innerHTML = '<div class="time-slot-empty">Нет свободных слотов</div>'; submitBtn.disabled = true; timeInput.value = ''; return; }
+            let html = '';
+            data.slots.forEach(s => { html += '<div class="time-slot" onclick="selectTime(\'' + s.time + '\', this)">' + s.display + '</div>'; });
+            timeSlotsDiv.innerHTML = html;
+        })
+        .catch(() => { timeSlotsDiv.innerHTML = '<div class="time-slot-empty" style="color:var(--red);">Ошибка загрузки</div>'; });
+}
+
+function selectTime(time, element) {
+    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+    element.classList.add('selected');
+    document.getElementById('time').value = time;
+    document.getElementById('submitBtn').disabled = false;
+    document.getElementById('infoTime').textContent = time;
+}
+
+function updateServiceInfo() {
+    const option = document.getElementById('service_id').selectedOptions[0];
+    if (option && option.value) {
+        const price = parseFloat(option.dataset.price) || 0;
+        const serviceId = parseInt(option.value);
+        document.getElementById('infoService').textContent = option.dataset.name || '—';
+        document.getElementById('infoDuration').textContent = (option.dataset.duration || '0') + ' мин';
+        
+        {% if active_promotion %}
+        const promoServiceId = {{ active_promotion.service_id if active_promotion.service_id else 'null' }};
+        const discount = {{ active_promotion.discount_percent }};
+        
+        // Проверяем: акция для всех услуг (null) или для этой конкретной
+        if (promoServiceId === null || promoServiceId === serviceId) {
+            const discounted = price * (1 - discount / 100);
+            document.getElementById('infoPrice').textContent = discounted.toFixed(0) + ' ₽';
+            document.getElementById('infoPrice').style.color = '#16a34a';
+            document.getElementById('discountPrice').textContent = discounted.toFixed(0) + ' ₽';
+        } else {
+            // Скидка не действует на эту услугу
+            document.getElementById('infoPrice').textContent = price.toFixed(0) + ' ₽';
+            document.getElementById('infoPrice').style.color = 'var(--accent)';
+            document.getElementById('discountPrice').textContent = 'Не действует на эту услугу';
+        }
+        {% else %}
+        document.getElementById('infoPrice').textContent = price.toFixed(0) + ' ₽';
+        document.getElementById('infoPrice').style.color = 'var(--accent)';
+        {% endif %}
+    } else {
+        document.getElementById('infoService').textContent = '—';
+        document.getElementById('infoDuration').textContent = '—';
+        document.getElementById('infoPrice').textContent = '—';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('date').setAttribute('min', tomorrow.toISOString().split('T')[0]);
+    document.getElementById('date').addEventListener('change', loadAvailableSlots);
+    document.getElementById('service_id').addEventListener('change', updateServiceInfo);
+    document.getElementById('doctor_id').addEventListener('change', function() { loadAvailableSlots(); updateDoctorInfo(); });
+});
+
+const observer = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('show'); }); }, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+{% endblock %}

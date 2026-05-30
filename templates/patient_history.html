@@ -1,0 +1,55 @@
+﻿{% extends "base.html" %}
+
+{% block title %}История приёмов: {{ patient.last_name }} {{ patient.first_name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>История приёмов пациента</h2>
+    <h3>{{ patient.last_name }} {{ patient.first_name }}</h3>
+    <p><strong>Телефон:</strong> {{ patient.phone }}</p>
+    <p><strong>Дата рождения:</strong> {{ patient.date_of_birth.strftime('%d.%m.%Y') if patient.date_of_birth else 'Не указана' }}</p>
+    <p><strong>Медицинская история:</strong> {{ patient.medical_history if patient.medical_history else 'Нет данных' }}</p>
+    
+    <a href="{{ url_for('patients') }}" class="btn btn-primary" style="margin-bottom: 20px;">← Назад к списку пациентов</a>
+    
+    {% if appointments %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Время</th>
+                    <th>Врач</th>
+                    <th>Услуга</th>
+                    <th>Статус</th>
+                    <th>Стоимость</th>
+                    <th>Примечания</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in appointments %}
+                <tr>
+                    <td>{{ appointment.appointment_date.strftime('%d.%m.%Y') }}</td>
+                    <td>{{ appointment.appointment_time.strftime('%H:%M') }}</td>
+                    <td>{{ appointment.doctor.last_name }} {{ appointment.doctor.first_name }}</td>
+                    <td>{{ appointment.service.name }}</td>
+                    <td>
+                        {% if appointment.status == 'scheduled' %}
+                            <span style="color: #3498db;">Запланирован</span>
+                        {% elif appointment.status == 'completed' %}
+                            <span style="color: #2ecc71;">Выполнен</span>
+                        {% elif appointment.status == 'cancelled' %}
+                            <span style="color: #e74c3c;">Отменён</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ appointment.service.price }} ₽</td>
+                    <td>{{ appointment.notes if appointment.notes else 'Нет примечаний' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>У пациента пока нет записей на приём.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

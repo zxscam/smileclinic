@@ -1,0 +1,240 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Расписание врачей — SmileClinic{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-label {
+        font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+        color: #7c93c8; margin-bottom: 14px; font-weight: 600;
+    }
+    .page-title {
+        font-size: 48px; font-weight: 800; color: var(--text);
+        letter-spacing: -2px; margin-bottom: 12px; line-height: 1.1;
+    }
+    .page-subtitle { color: var(--text-secondary); font-size: 16px; margin-bottom: 40px; }
+    .week-nav { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; flex-wrap: wrap; }
+    .week-nav-btn {
+        padding: 12px 24px; border: 2px solid var(--border); border-radius: 16px;
+        background: white; color: var(--text-secondary); font-weight: 600; font-size: 14px;
+        cursor: pointer; text-decoration: none; transition: all 0.25s; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .week-nav-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); transform: translateY(-2px); }
+    .week-nav-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .week-range { font-size: 18px; font-weight: 700; color: var(--text); padding: 0 8px; }
+    .schedule-wrapper { background: white; border: 1px solid var(--border); border-radius: 28px; overflow: hidden; box-shadow: 0 4px 20px rgba(20,40,120,0.04); }
+    .schedule-header { display: grid; grid-template-columns: 80px repeat(7, 1fr); background: linear-gradient(135deg, #fafbff, #f0f4ff); border-bottom: 2px solid var(--border); }
+    .header-time { padding: 18px 10px; text-align: center; font-size: 12px; font-weight: 700; color: #7c93c8; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; }
+    .header-day { padding: 16px 10px; text-align: center; border-left: 1px solid var(--border); transition: all 0.3s; }
+    .header-day.today { background: linear-gradient(135deg, var(--accent-light), #dbeafe); position: relative; }
+    .header-day.weekend { background: #fafafa; }
+    .day-name { font-size: 12px; font-weight: 700; color: #7c93c8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .day-date { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .day-month { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+    .today-badge { display: inline-block; background: var(--accent); color: white; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+    .weekend-badge { display: inline-block; color: #bcc6da; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+    .schedule-body { max-height: 650px; overflow-y: auto; }
+    .schedule-body::-webkit-scrollbar { width: 6px; }
+    .schedule-body::-webkit-scrollbar-track { background: transparent; }
+    .schedule-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+    .schedule-row { display: grid; grid-template-columns: 80px repeat(7, 1fr); border-bottom: 1px solid var(--border); min-height: 56px; transition: background 0.2s; }
+    .schedule-row:hover { background: #fafcff; }
+    .time-cell { padding: 12px 8px; text-align: center; font-weight: 600; color: var(--text-secondary); font-size: 13px; display: flex; align-items: center; justify-content: center; border-right: 1px solid var(--bg-secondary); background: white; position: sticky; left: 0; z-index: 1; }
+    .schedule-cell { padding: 4px; border-left: 1px solid var(--bg-secondary); position: relative; transition: all 0.2s; }
+    .schedule-cell.today { background: #fafcff; }
+    .schedule-cell.weekend { background: #fdfdfd; }
+    .schedule-cell:hover { background: #f8faff; }
+    .appointment-card { background: white; border-radius: 10px; padding: 8px 10px; margin: 2px 0; border: 1px solid #e8ecf4; border-left: 4px solid var(--accent); cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; }
+    .appointment-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(79,140,255,0.15); border-color: var(--accent); z-index: 10; }
+    .appointment-card.completed { border-left-color: var(--green); background: #fafdf9; }
+    .appointment-card.cancelled { border-left-color: var(--red); background: #fefafa; opacity: 0.5; text-decoration: line-through; text-decoration-color: var(--red); }
+    .appointment-card.cancelled:hover { opacity: 0.8; text-decoration: none; }
+    .apt-patient { font-weight: 700; font-size: 12px; color: var(--text); margin-bottom: 2px; }
+    .apt-service { font-size: 10px; color: var(--text-secondary); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .apt-doctor { font-size: 10px; color: var(--accent); font-weight: 600; }
+    .apt-status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+    .apt-status-dot.scheduled { background: var(--accent); }
+    .apt-status-dot.completed { background: var(--green); }
+    .apt-status-dot.cancelled { background: var(--red); }
+    .empty-cell { display: flex; align-items: center; justify-content: center; height: 100%; min-height: 40px; color: #e2e8f0; font-size: 18px; font-weight: 300; }
+    .legend-card { background: white; border: 1px solid var(--border); border-radius: 20px; padding: 24px 28px; margin-top: 24px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+    .legend-title { font-size: 13px; font-weight: 700; color: var(--text); text-transform: uppercase; letter-spacing: 1px; }
+    .legend-items { display: flex; gap: 24px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+    .legend-dot.free { border: 2px dashed #d1d5db; background: transparent; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: white; border: 1px solid var(--border); border-radius: 20px; padding: 20px 24px; text-align: center; transition: all 0.3s; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(20,40,120,0.08); }
+    .stat-value { font-size: 32px; font-weight: 800; color: var(--text); letter-spacing: -1px; }
+    .stat-value.blue { color: var(--accent); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.amber { color: var(--amber); }
+    .stat-value.red { color: var(--red); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 4px; }
+    .doctor-filter { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+    .filter-chip { padding: 8px 18px; border: 2px solid var(--border); border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: white; color: var(--text-secondary); }
+    .filter-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+    
+    /* КНОПКА ВЫПОЛНЕН */
+    .complete-btn {
+        display: inline-block; margin-top: 4px; padding: 3px 8px;
+        background: var(--green); color: white; border: none;
+        border-radius: 4px; font-size: 10px; font-weight: 700; cursor: pointer;
+    }
+    .complete-btn:hover { opacity: 0.8; }
+    
+    @media (max-width: 1024px) { .schedule-header, .schedule-row { grid-template-columns: 60px repeat(5, 1fr); } .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 768px) { .page-title { font-size: 32px; } .schedule-header, .schedule-row { grid-template-columns: 50px repeat(3, 1fr); } .stats-row { grid-template-columns: 1fr 1fr; } }
+</style>
+
+<section style="margin-bottom: 80px;">
+    
+    <div class="page-label">Расписание</div>
+    <h1 class="page-title">Расписание врачей</h1>
+    <p class="page-subtitle">Актуальное расписание на неделю. Выберите удобное время для записи.</p>
+    
+    <div class="stats-row">
+        <div class="stat-card fade-up"><div class="stat-value blue">{{ appointments|selectattr('status', 'equalto', 'scheduled')|list|length }}</div><div class="stat-label">Запланировано</div></div>
+        <div class="stat-card fade-up"><div class="stat-value green">{{ appointments|selectattr('status', 'equalto', 'completed')|list|length }}</div><div class="stat-label">Выполнено</div></div>
+        <div class="stat-card fade-up"><div class="stat-value amber">{{ doctors|length }}</div><div class="stat-label">Врачей</div></div>
+        <div class="stat-card fade-up"><div class="stat-value red">{{ appointments|selectattr('status', 'equalto', 'cancelled')|list|length }}</div><div class="stat-label">Отменено</div></div>
+    </div>
+    
+    {% if doctors|length > 1 %}
+    <div class="doctor-filter">
+        <button class="filter-chip active" onclick="filterByDoctor('all', this)">Все врачи</button>
+        {% for doc in doctors %}
+        <button class="filter-chip" onclick="filterByDoctor('{{ doc.id }}', this)">{{ doc.last_name }} {{ doc.first_name }}</button>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="week-nav">
+        <a href="?week={{ week_offset - 1 }}" class="week-nav-btn">← Предыдущая</a>
+        <span class="week-range">{{ week_start.strftime('%d.%m.%Y') }} - {{ week_end.strftime('%d.%m.%Y') }}</span>
+        <a href="?week={{ week_offset + 1 }}" class="week-nav-btn">Следующая →</a>
+        {% if week_offset != 0 %}<a href="?week=0" class="week-nav-btn active">Текущая неделя</a>{% endif %}
+    </div>
+    
+    <div class="schedule-wrapper fade-up">
+        <div class="schedule-header">
+            <div class="header-time">Время</div>
+            {% for day in week_days %}
+            <div class="header-day {% if day.is_today %}today{% endif %} {% if day.is_weekend %}weekend{% endif %}">
+                <div class="day-name">{{ day.name }}</div>
+                <div class="day-date">{{ day.date.strftime('%d') }}</div>
+                <div class="day-month">{{ day.date.strftime('%b') }}</div>
+                {% if day.is_today %}<div class="today-badge">Сегодня</div>{% elif day.is_weekend %}<div class="weekend-badge">Выходной</div>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="schedule-body">
+            {% for slot in time_slots %}
+            <div class="schedule-row">
+                <div class="time-cell">{{ slot }}</div>
+                {% for day in week_days %}
+                {% set key = day.date.strftime('%Y-%m-%d') ~ '_' ~ slot %}
+                <div class="schedule-cell {% if day.is_today %}today{% endif %} {% if day.is_weekend %}weekend{% endif %}"
+                     data-doctor-ids="{% if schedule_data.get(key) %}{% for apt in schedule_data[key] %}{{ apt.doctor_id }}{% if not loop.last %},{% endif %}{% endfor %}{% endif %}">
+                    
+                    {% if schedule_data.get(key) %}
+                        {% for apt in schedule_data[key] %}
+                        <div class="appointment-card {{ apt.status }}" data-doctor-id="{{ apt.doctor_id }}">
+                            <div class="apt-patient">
+                                <span class="apt-status-dot {{ apt.status }}"></span>
+                                {{ apt.patient.last_name if apt.patient else '—' }} {{ apt.patient.first_name[:1] if apt.patient else '' }}.
+                            </div>
+                            <div class="apt-service">{{ apt.service.name if apt.service else '—' }}</div>
+                            <div class="apt-doctor">{{ apt.doctor.last_name if apt.doctor else '—' }}</div>
+                            
+                            {% if apt.status == 'scheduled' and current_user.role in ['admin', 'doctor'] %}
+                            <button class="complete-btn" onclick="event.stopPropagation(); completeAppointment({{ apt.id }})">✔ Выполнен</button>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-cell">·</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="legend-card">
+        <span class="legend-title">Обозначения:</span>
+        <div class="legend-items">
+            <div class="legend-item"><div class="legend-dot" style="background: var(--accent);"></div>Запланирован</div>
+            <div class="legend-item"><div class="legend-dot" style="background: var(--green);"></div>Выполнен</div>
+            <div class="legend-item"><div class="legend-dot" style="background: var(--red);"></div>Отменён</div>
+            <div class="legend-item"><div class="legend-dot free"></div>Свободно</div>
+        </div>
+    </div>
+    
+</section>
+
+<script>
+function filterByDoctor(doctorId, element) {
+    document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+    if (element) element.classList.add('active');
+    document.querySelectorAll('.appointment-card').forEach(card => {
+        const cardDoctorId = card.getAttribute('data-doctor-id');
+        card.style.display = (doctorId === 'all' || cardDoctorId === doctorId) ? '' : 'none';
+    });
+}
+
+function completeAppointment(id) {
+    if (confirm('Отметить приём как выполненный?')) {
+        fetch('/complete-appointment/' + id, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) location.reload();
+                else alert('Ошибка');
+            });
+    }
+}
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('show'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+function updateStats() {
+    const visibleCards = document.querySelectorAll('.appointment-card[style*="display:"]');
+    let scheduled = 0, completed = 0, cancelled = 0;
+    
+    document.querySelectorAll('.appointment-card').forEach(card => {
+        if (card.style.display !== 'none') {
+            if (card.classList.contains('completed')) completed++;
+            else if (card.classList.contains('cancelled')) cancelled++;
+            else scheduled++;
+        }
+    });
+    
+    document.querySelector('.stat-value.blue').textContent = scheduled;
+    document.querySelector('.stat-value.green').textContent = completed;
+    document.querySelector('.stat-value.red').textContent = cancelled;
+}
+
+// Обновите функцию filterByDoctor
+function filterByDoctor(doctorId, element) {
+    document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+    if (element) element.classList.add('active');
+    
+    document.querySelectorAll('.appointment-card').forEach(card => {
+        const cardDoctorId = card.getAttribute('data-doctor-id');
+        card.style.display = (doctorId === 'all' || cardDoctorId === doctorId) ? '' : 'none';
+    });
+    
+    updateStats(); // ← обновляем статистику
+}
+
+// Обновляем статистику при загрузке
+document.addEventListener('DOMContentLoaded', updateStats);
+</script>
+
+{% endblock %}

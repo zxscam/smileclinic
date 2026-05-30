@@ -1,0 +1,55 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Чаты — SmileClinic{% endblock %}
+
+{% block content %}
+
+<div style="max-width:600px; margin:0 auto; padding:20px 0 60px;">
+    
+    <h1 style="font-size:28px; font-weight:700; color:var(--text); margin-bottom:24px;">Чаты</h1>
+    
+    {% if contacts %}
+        <div style="display:flex; flex-direction:column; gap:2px;">
+            {% for contact in contacts %}
+            <a href="{{ url_for('chat', contact_id=contact.id) }}" 
+               style="display:flex; align-items:center; gap:14px; padding:16px; 
+                      border-radius:14px; text-decoration:none; transition:background 0.2s;"
+               onmouseover="this.style.background='var(--bg-secondary)'" 
+               onmouseout="this.style.background='transparent'">
+                
+                <div style="width:50px; height:50px; border-radius:50%; background:var(--accent-light); 
+                            display:flex; align-items:center; justify-content:center; 
+                            font-weight:700; color:var(--accent); font-size:18px;">
+                    {{ contact.last_name[:1] if contact.last_name else '?' }}
+                </div>
+                
+                <div style="flex:1;">
+                    <div style="font-weight:600; color:var(--text);">{{ contact.full_name }}</div>
+                    <div style="font-size:12px; color:var(--text-muted);">
+                        {{ contact.specialty if contact.specialty else 'Пациент' }}
+                    </div>
+                </div>
+                
+                <span style="color:var(--text-muted);">→</span>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align:center; padding:60px 20px; background:white; 
+                    border:1px solid var(--border); border-radius:16px;">
+            <p style="color:var(--text-muted);">Нет доступных чатов</p>
+            <p style="color:var(--text-muted); font-size:13px;">
+                {% if current_user.role == 'patient' %}
+                    Запишитесь к врачу, чтобы открыть чат
+                {% else %}
+                    У вас пока нет записей пациентов
+                {% endif %}
+            </p>
+        </div>
+    {% endif %}
+    
+</div>
+
+{% endblock %}
+
+

@@ -1,0 +1,446 @@
+{% extends "base.html" %}
+
+{% block title %}SmileClinic — Стоматология{% endblock %}
+
+{% block content %}
+
+<style>
+    .fade-up {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: opacity .8s ease, transform .8s ease;
+    }
+    
+    .fade-up.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .hover-card {
+        transition: transform .3s ease, box-shadow .3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 50px rgba(20,40,120,.12);
+    }
+    
+    .hero-section {
+        position: relative;
+        width: 100%;
+        max-width: 1920px;
+        margin: 0 auto;
+        height: 480px;
+        min-height: 480px;
+        border-radius: 36px;
+        overflow: hidden;
+        margin-bottom: 50px;
+        background-image: linear-gradient(90deg, rgba(245,247,252,.96) 0%, rgba(245,247,252,.88) 35%, rgba(245,247,252,.45) 60%, rgba(245,247,252,.12) 100%), url("{{ url_for('static', filename='images/hero-bg.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    
+    [data-theme="dark"] .hero-section {
+        background-image: linear-gradient(90deg, rgba(15,23,42,.96) 0%, rgba(15,23,42,.88) 35%, rgba(15,23,42,.45) 60%, rgba(15,23,42,.12) 100%), url("{{ url_for('static', filename='images/hero-bg.jpg') }}");
+    }
+    
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 30% 30%, rgba(79,140,255,.10), transparent 50%);
+        z-index: 1;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 60px 80px;
+    }
+    
+    .hero-left {
+        max-width: 620px;
+    }
+    
+    .hero-label {
+        font-size: 13px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        color: #2563eb;
+        margin-bottom: 20px;
+        font-weight: 600;
+    }
+    
+    .hero-title {
+        font-size: 58px;
+        line-height: 1.05;
+        font-weight: 800;
+        color: #0b132b;
+        margin-bottom: 20px;
+        letter-spacing: -3px;
+    }
+    
+    [data-theme="dark"] .hero-title {
+        color: #ffffff;
+    }
+    
+    .hero-title span {
+        color: #2563eb;
+    }
+    
+    [data-theme="dark"] .hero-title span {
+        color: #60a5fa;
+    }
+    
+    .hero-text {
+        font-size: 17px;
+        line-height: 1.7;
+        color: #475569;
+        max-width: 520px;
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+    
+    [data-theme="dark"] .hero-text {
+        color: #e2e8f0;
+    }
+    
+    .hero-buttons {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .hero-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 30px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #5b8cff, #2f6fff);
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 15px;
+        transition: .3s ease;
+        box-shadow: 0 10px 25px rgba(79,140,255,.28);
+    }
+    
+    .hero-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(79,140,255,.35);
+    }
+    
+    .hero-link {
+        color: #475569;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+    }
+    
+    [data-theme="dark"] .hero-link {
+        color: #e2e8f0;
+    }
+    
+      @media (max-width: 768px) {
+    .hero-section {
+        height: auto !important;
+        min-height: 300px !important;
+        border-radius: 20px !important;
+        margin-bottom: 30px !important;
+    }
+    
+    .hero-content {
+        padding: 24px 16px !important;
+    }
+    
+    .hero-title {
+        font-size: 28px !important;
+        letter-spacing: -1px !important;
+        margin-bottom: 10px !important;
+    }
+    
+    .hero-text {
+        font-size: 13px !important;
+        margin-bottom: 16px !important;
+        max-width: 100% !important;
+    }
+    
+    .hero-label {
+        font-size: 10px !important;
+        letter-spacing: 2px !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .hero-buttons {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    .hero-btn {
+        width: 100% !important;
+        text-align: center !important;
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+    }
+    
+    .hero-link {
+        text-align: center !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 22px !important;
+    }
+    
+    .hero-text {
+        font-size: 12px !important;
+    }
+}
+@media (max-width: 768px) {
+    .hero-section {
+        background-image: linear-gradient(135deg, rgba(245,247,252,.92) 0%, rgba(245,247,252,.70) 100%), url("{{ url_for('static', filename='images/hero-bg.jpg') }}") !important;
+        background-position: right center !important;
+    }
+    
+    [data-theme="dark"] .hero-section {
+        background-image: linear-gradient(135deg, rgba(15,23,42,.92) 0%, rgba(15,23,42,.70) 100%), url("{{ url_for('static', filename='images/hero-bg.jpg') }}") !important;
+    }
+}
+.features-grid {
+    grid-template-columns: repeat(4, 1fr) !important;
+}
+
+@media (max-width: 1024px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        padding: 24px !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        padding: 20px 16px !important;
+        gap: 14px !important;
+        border-radius: 20px !important;
+    }
+    
+    .features-grid > div {
+        gap: 12px !important;
+    }
+    
+    .features-grid > div > div:first-child {
+        width: 48px !important;
+        height: 48px !important;
+        font-size: 22px !important;
+    }
+    
+    .features-grid > div > div:last-child > div:first-child {
+        font-size: 14px !important;
+    }
+    
+    .features-grid > div > div:last-child > div:last-child {
+        font-size: 12px !important;
+    }
+}
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+}
+
+@media (max-width: 1024px) {
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 20px !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .services-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+    
+    .services-grid h3 {
+        font-size: 18px !important;
+    }
+    
+    .services-grid p {
+        font-size: 13px !important;
+    }
+}
+
+/* Также адаптируем заголовок секции */
+@media (max-width: 768px) {
+    .section-header {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+    
+    .section-header h2 {
+        font-size: 32px !important;
+    }
+    
+    .section-header p {
+        font-size: 14px !important;
+        max-width: 100% !important;
+    }
+}
+.doctors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+@media (max-width: 1024px) {
+    .doctors-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 600px) {
+    .doctors-grid {
+        grid-template-columns: 1fr !important;
+    }
+</style>
+
+<!-- HERO -->
+<section class="fade-up hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-left">
+            <div class="hero-label">СОВРЕМЕННАЯ СТОМАТОЛОГИЯ</div>
+            <h1 class="hero-title">Улыбайтесь<br><span>с уверенностью</span></h1>
+            <p class="hero-text">Комплексный подход к лечению зубов с использованием современных технологий и индивидуальным подходом к каждому пациенту.</p>
+            <div class="hero-buttons">
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" class="hero-btn">Записаться на приём</a>
+                {% elif current_user.role == 'patient' %}
+                    <a href="{{ url_for('appointment') }}" class="hero-btn">Онлайн-запись</a>
+                {% endif %}
+                <a href="{{ url_for('reviews') }}" class="hero-link">Отзывы пациентов</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES -->
+<section style="margin-top:-10px; margin-bottom:90px;">
+    <div class="features-grid" style="background:var(--bg-card); border:1px solid var(--border); border-radius:30px; padding:34px 40px; display:grid; grid-template-columns:repeat(4,1fr); gap:30px; box-shadow:var(--shadow-md);">
+        
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:62px; height:62px; border-radius:20px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:28px;">🦷</div>
+            <div>
+                <div style="font-weight:700; color:var(--text); margin-bottom:6px;">Современное оборудование</div>
+                <div style="color:var(--text-muted); font-size:14px;">Передовые технологии</div>
+            </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:62px; height:62px; border-radius:20px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:28px;">🛡️</div>
+            <div>
+                <div style="font-weight:700; color:var(--text); margin-bottom:6px;">Гарантия</div>
+                <div style="color:var(--text-muted); font-size:14px;">На все виды услуг</div>
+            </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:62px; height:62px; border-radius:20px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:28px;">✚</div>
+            <div>
+                <div style="font-weight:700; color:var(--text); margin-bottom:6px;">Безопасность</div>
+                <div style="color:var(--text-muted); font-size:14px;">Стерильность и контроль</div>
+            </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:16px;">
+            <div style="width:62px; height:62px; border-radius:20px; background:var(--accent-light); display:flex; align-items:center; justify-content:center; font-size:28px;">😊</div>
+            <div>
+                <div style="font-weight:700; color:var(--text); margin-bottom:6px;">Индивидуальный подход</div>
+                <div style="color:var(--text-muted); font-size:14px;">Для каждого пациента</div>
+            </div>
+        </div>
+        
+    </div>
+</section>
+
+<!-- SERVICES -->
+<section style="margin-bottom:100px;">
+    <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:40px; gap:40px;">
+        <div>
+            <div style="font-size:13px; text-transform:uppercase; letter-spacing:3px; color:var(--accent); margin-bottom:18px;">Наши услуги</div>
+            <h2 style="font-size:52px; line-height:1.1; font-weight:800; color:var(--text); letter-spacing:-2px; max-width:700px;">Комплексная забота о вашем здоровье и красоте</h2>
+        </div>
+        <div style="max-width:420px; color:var(--text-secondary); line-height:1.8; font-size:16px;">Предлагаем полный спектр стоматологических услуг для взрослых и детей.</div>
+    </div>
+
+    <div class="services-grid" style="gap:28px;">
+        {% if services %}
+            {% for service in services %}
+            <div class="fade-up hover-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:28px; overflow:hidden;">
+                <div style="height:210px; overflow:hidden; background:var(--bg-secondary);">
+                    {% set service_images = ['consult', 'caries', 'cleaning', 'extraction', 'braces', 'whitening'] %}
+                    <img src="{{ url_for('static', filename='images/service-' ~ service_images[loop.index0 % service_images|length] ~ '.jpg') }}"
+                         alt="{{ service.name if service.name else 'Услуга' }}"
+                         style="width:100%; height:100%; object-fit:cover;"
+                         onerror="this.parentElement.innerHTML='<div style=\'height:100%; display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:600;\'>Услуга</div>'">
+                </div>
+                <div style="padding:28px;">
+                    <h3 style="font-size:22px; font-weight:700; margin-bottom:12px; color:var(--text);">{{ service.name if service.name else 'Услуга' }}</h3>
+                    <p style="color:var(--text-secondary); line-height:1.7; font-size:15px; margin-bottom:22px;">{{ service.description[:90] if service.description else '' }}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:20px; font-weight:700; color:var(--accent);">{{ service.price if service.price else '—' }} ₽</div>
+                        <div style="background:var(--accent-light); color:var(--accent); padding:10px 14px; border-radius:14px; font-size:13px; font-weight:600;">{{ service.duration if service.duration else '—' }} мин</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</section>
+
+<!-- DOCTORS -->
+<section style="margin-bottom:100px;">
+    <h2 style="font-size:48px; font-weight:800; color:var(--text); margin-bottom:40px; letter-spacing:-2px;">Наши врачи</h2>
+    <div class="doctors-grid" style="gap:28px;">
+        {% for doctor in doctors %}
+        <div class="fade-up hover-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:32px; padding:36px; text-align:center; cursor:pointer;" onclick="location.href='{{ url_for('doctor_profile', doctor_id=doctor.id) }}'">
+            
+            <img src="{{ url_for('static', filename='images/doctor-' ~ loop.index ~ '.jpg') }}"
+                 alt="{{ doctor.full_name }}"
+                 style="width:130px; height:130px; border-radius:50%; object-fit:cover; border:3px solid var(--border); margin:0 auto 16px;"
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            
+            <div style="width:130px; height:130px; border-radius:50%; background:var(--accent-light); display:none; align-items:center; justify-content:center; font-size:36px; font-weight:700; color:var(--accent); margin:0 auto 16px;">
+                {{ doctor.last_name[:1] }}{{ doctor.first_name[:1] }}
+            </div>
+            
+            <h3 style="font-size:22px; font-weight:700; color:var(--text); margin-bottom:8px;">{{ doctor.full_name }}</h3>
+            <p style="color:var(--text-muted); margin-bottom:16px;">{{ doctor.specialty }}</p>
+            
+            {% if doctor.review_count and doctor.review_count > 0 %}
+            <div style="color:var(--amber); font-weight:600; margin-bottom:24px;">★ {{ doctor.average_rating }} · {{ doctor.review_count }} отзывов</div>
+            {% endif %}
+            
+            <div style="width:100%; padding:14px; border-radius:16px; border:1px solid var(--border); background:var(--bg-secondary); color:var(--accent); font-weight:600;">Подробнее о враче</div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+</script>
+
+{% endblock %}

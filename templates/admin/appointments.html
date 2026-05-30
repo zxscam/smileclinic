@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Все записи — Админ{% endblock %}
+{% block content %}
+
+<style>
+    .admin-title { font-size: 28px; font-weight: 700; color: #0b132b; margin-bottom: 20px; }
+    .admin-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; }
+    .admin-btn { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; }
+    .admin-btn.gray { color: #64748b; border: 1px solid #e2e8f0; }
+</style>
+
+<a href="{{ url_for('admin_panel') }}" class="admin-btn gray" style="margin-bottom:16px; display:inline-block;">← Назад</a>
+<h1 class="admin-title">Все записи</h1>
+
+<div class="admin-card">
+    {% if appointments %}
+    <div style="overflow-x:auto;">
+    <table style="width:100%; border-collapse:collapse; min-width:700px;">
+        <thead>
+            <tr>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Дата</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Время</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Пациент</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Врач</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Услуга</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Цена</th>
+                <th style="text-align:left; padding:10px; border-bottom:2px solid #e2e8f0;">Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for apt in appointments %}
+            <tr>
+                <td style="padding:8px 10px;">{{ apt.appointment_date.strftime('%d.%m.%Y') }}</td>
+                <td style="padding:8px 10px;">{{ apt.appointment_time.strftime('%H:%M') }}</td>
+                <td style="padding:8px 10px;">{{ apt.patient.last_name }} {{ apt.patient.first_name }}</td>
+                <td style="padding:8px 10px;">{{ apt.doctor.last_name }} {{ apt.doctor.first_name }}</td>
+                <td style="padding:8px 10px; font-size:13px;">{{ apt.service.name }}</td>
+                <td style="padding:8px 10px; font-weight:600;">{{ apt.service.price }} ₽</td>
+                <td style="padding:8px 10px;">
+                    <form method="POST" action="{{ url_for('admin_change_status', appointment_id=apt.id) }}">
+                        <select name="status" onchange="this.form.submit()" style="padding:4px 8px; border-radius:6px; border:1px solid #e2e8f0; font-size:12px;">
+                            <option value="scheduled" {% if apt.status=='scheduled' %}selected{% endif %}>Запланирован</option>
+                            <option value="completed" {% if apt.status=='completed' %}selected{% endif %}>Выполнен</option>
+                            <option value="cancelled" {% if apt.status=='cancelled' %}selected{% endif %}>Отменён</option>
+                        </select>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% else %}
+    <p style="color:#94a3b8; text-align:center; padding:20px;">Нет записей</p>
+    {% endif %}
+</div>
+
+{% endblock %}

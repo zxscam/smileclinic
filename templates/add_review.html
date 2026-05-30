@@ -1,0 +1,255 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Оставить отзыв — SmileClinic{% endblock %}
+
+{% block content %}
+
+<style>
+    .page-label {
+        font-size: 13px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #7c93c8;
+        margin-bottom: 14px;
+        font-weight: 600;
+    }
+    
+    .page-title {
+        font-size: 42px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -2px;
+        margin-bottom: 12px;
+        line-height: 1.1;
+    }
+    
+    .review-form-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        padding: 40px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .appointment-info {
+        background: var(--bg-secondary);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 28px;
+    }
+    
+    .appointment-info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        font-size: 14px;
+    }
+    
+    .appointment-info-label {
+        color: var(--text-secondary);
+    }
+    
+    .appointment-info-value {
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .stars-input {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin: 20px 0;
+    }
+    
+    .star-btn {
+        font-size: 40px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: none;
+        border: none;
+        color: #d1d5db;
+    }
+    
+    .star-btn:hover {
+        transform: scale(1.2);
+    }
+    
+    .star-btn.active {
+        color: var(--amber);
+    }
+    
+    .star-btn:hover ~ .star-btn {
+        color: #d1d5db !important;
+    }
+    
+    .stars-input:hover .star-btn {
+        color: var(--amber);
+    }
+    
+    .rating-text {
+        text-align: center;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        min-height: 24px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-textarea {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid var(--border);
+        border-radius: 16px;
+        font-size: 15px;
+        background: var(--bg-secondary);
+        color: var(--text);
+        transition: all 0.3s;
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+        margin-bottom: 24px;
+    }
+    
+    .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(79,140,255,0.08);
+    }
+    
+    .submit-btn {
+        width: 100%;
+        padding: 16px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #5b8cff, #2f6fff);
+        color: white;
+        font-weight: 700;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 25px rgba(79,140,255,0.25);
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(79,140,255,0.35);
+    }
+    
+    .submit-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+</style>
+
+<section style="margin-bottom: 80px; padding-top: 20px;">
+    
+    <div style="text-align: center; margin-bottom: 40px;">
+        <div class="page-label">Поделитесь впечатлениями</div>
+        <h1 class="page-title">Оставить отзыв</h1>
+    </div>
+    
+    <div class="review-form-card fade-up">
+        
+        <!-- Инфо о приёме -->
+        <div class="appointment-info">
+            <div class="appointment-info-item">
+                <span class="appointment-info-label">Врач</span>
+                <span class="appointment-info-value">{{ appointment.doctor.full_name if appointment.doctor else '—' }}</span>
+            </div>
+            <div class="appointment-info-item">
+                <span class="appointment-info-label">Специализация</span>
+                <span class="appointment-info-value">{{ appointment.doctor.specialty if appointment.doctor else '—' }}</span>
+            </div>
+            <div class="appointment-info-item">
+                <span class="appointment-info-label">Услуга</span>
+                <span class="appointment-info-value">{{ appointment.service.name if appointment.service else '—' }}</span>
+            </div>
+            <div class="appointment-info-item">
+                <span class="appointment-info-label">Дата приёма</span>
+                <span class="appointment-info-value">{{ appointment.appointment_date.strftime('%d.%m.%Y') if appointment.appointment_date else '—' }}</span>
+            </div>
+        </div>
+        
+        <!-- Форма -->
+        <form method="POST" id="reviewForm">
+            
+            <label class="form-label">Ваша оценка</label>
+            
+            <div class="stars-input" id="starsInput">
+                <button type="button" class="star-btn" data-rating="1" onclick="setRating(1)">★</button>
+                <button type="button" class="star-btn" data-rating="2" onclick="setRating(2)">★</button>
+                <button type="button" class="star-btn" data-rating="3" onclick="setRating(3)">★</button>
+                <button type="button" class="star-btn" data-rating="4" onclick="setRating(4)">★</button>
+                <button type="button" class="star-btn" data-rating="5" onclick="setRating(5)">★</button>
+            </div>
+            
+            <div class="rating-text" id="ratingText"></div>
+            
+            <input type="hidden" name="rating" id="ratingInput" required>
+            
+            <label class="form-label" for="comment">Ваш комментарий</label>
+            <textarea class="form-textarea" id="comment" name="comment" 
+                      placeholder="Расскажите о вашем опыте посещения клиники..."></textarea>
+            
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                Отправить отзыв
+            </button>
+            
+        </form>
+        
+    </div>
+    
+</section>
+
+<script>
+let currentRating = 0;
+const ratingTexts = ['', 'Ужасно', 'Плохо', 'Нормально', 'Хорошо', 'Отлично!'];
+
+function setRating(rating) {
+    currentRating = rating;
+    document.getElementById('ratingInput').value = rating;
+    document.getElementById('ratingText').textContent = ratingTexts[rating];
+    document.getElementById('submitBtn').disabled = false;
+    
+    document.querySelectorAll('.star-btn').forEach(btn => {
+        const btnRating = parseInt(btn.getAttribute('data-rating'));
+        if (btnRating <= rating) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+// Валидация формы
+document.getElementById('reviewForm').addEventListener('submit', function(e) {
+    if (currentRating === 0) {
+        e.preventDefault();
+        alert('Пожалуйста, поставьте оценку!');
+    }
+});
+
+// Анимация
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+    });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+</script>
+
+{% endblock %}
+
+

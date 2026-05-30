@@ -1,0 +1,110 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Чат — SmileClinic{% endblock %}
+
+{% block content %}
+
+<div style="max-width:650px; margin:0 auto; background:white; border:1px solid var(--border); 
+            border-radius:20px; overflow:hidden; display:flex; flex-direction:column; height:70vh; min-height:500px;">
+    
+    <!-- Заголовок -->
+    <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; background:var(--bg-secondary);">
+        <a href="{{ url_for('chat_list') }}" style="color:var(--text-secondary); text-decoration:none; font-size:20px;">←</a>
+        <div style="width:40px; height:40px; border-radius:50%; background:var(--accent-light); 
+                    display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent);">
+            {{ contact.username[:1].upper() }}
+        </div>
+        <div style="font-weight:600; color:var(--text);">{{ contact.username }}</div>
+    </div>
+    
+    <!-- Сообщения -->
+    <div id="chatMessages" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px; background:var(--bg-secondary);">
+        {% if messages %}
+            {% for msg in messages %}
+            <div style="max-width:75%; padding:10px 14px; border-radius:16px; font-size:14px;
+                        {% if msg.sender_id == current_user.id %}
+                            align-self:flex-end; background:var(--accent); color:white; border-bottom-right-radius:4px;
+                        {% else %}
+                            align-self:flex-start; background:white; border:1px solid var(--border); color:var(--text); border-bottom-left-radius:4px;
+                        {% endif %}">
+                {{ msg.content }}
+                <div style="font-size:10px; opacity:0.7; margin-top:4px;">{{ msg.created_at.strftime('%H:%M') }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="text-align:center; color:var(--text-muted); padding:40px;">Начните диалог</div>
+        {% endif %}
+    </div>
+    
+    <!-- Ввод -->
+    <div style="padding:14px 20px; border-top:1px solid var(--border); display:flex; gap:10px; background:white;">
+        <input type="text" id="messageInput" placeholder="Сообщение..." 
+               style="flex:1; padding:10px 16px; border:1px solid var(--border); border-radius:24px; 
+                      font-size:14px; outline:none; background:var(--bg-secondary);"
+               onkeypress="if(event.key==='Enter') sendMessage()">
+        <button onclick="sendMessage()" 
+                style="width:40px; height:40px; border-radius:50%; background:var(--accent); color:white; 
+                       border:none; cursor:pointer; font-size:16px;">➤</button>
+    </div>
+    
+</div>
+
+<script>
+const contactId = {{ contact.id }};
+let lastMessageId = {{ messages[-1].id if messages else 0 }};
+
+function scrollToBottom() {
+    const container = document.getElementById('chatMessages');
+    container.scrollTop = container.scrollHeight;
+}
+scrollToBottom();
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const content = input.value.trim();
+    
+    if (!content) return;
+    
+    fetch('/api/chat/send', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            receiver_id: contactId,
+            content: content
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.cssText = 'max-width:75%; padding:10px 14px; border-radius:16px; font-size:14px; align-self:flex-end; background:var(--accent); color:white; border-bottom-right-radius:4px;';
+            msgDiv.innerHTML = data.content + '<div style="font-size:10px; opacity:0.7; margin-top:4px;">' + data.created_at + '</div>';
+            document.getElementById('chatMessages').appendChild(msgDiv);
+            input.value = '';
+            lastMessageId = data.id;
+            scrollToBottom();
+        }
+    });
+}
+
+setInterval(() => {
+    fetch(`/api/chat/new-messages?last_id=${lastMessageId}&contact_id=${contactId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.messages && data.messages.length > 0) {
+                data.messages.forEach(msg => {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.style.cssText = 'max-width:75%; padding:10px 14px; border-radius:16px; font-size:14px; align-self:flex-start; background:white; border:1px solid var(--border); color:var(--text); border-bottom-left-radius:4px;';
+                    msgDiv.innerHTML = msg.content + '<div style="font-size:10px; opacity:0.7; margin-top:4px;">' + msg.created_at + '</div>';
+                    document.getElementById('chatMessages').appendChild(msgDiv);
+                    lastMessageId = msg.id;
+                });
+                scrollToBottom();
+            }
+        });
+}, 3000);
+</script>
+
+{% endblock %}
+
+

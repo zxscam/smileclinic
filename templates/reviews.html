@@ -1,0 +1,504 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Отзывы — SmileClinic{% endblock %}
+
+{% block content %}
+
+<style>
+    /* ===== БАЗОВЫЕ СТИЛИ ===== */
+    .page-label {
+        font-size: 13px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #7c93c8;
+        margin-bottom: 14px;
+        font-weight: 600;
+    }
+    
+    .page-title {
+        font-size: 48px;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -2px;
+        margin-bottom: 12px;
+        line-height: 1.1;
+    }
+    
+    .page-subtitle {
+        color: var(--text-secondary);
+        font-size: 16px;
+        margin-bottom: 50px;
+    }
+    
+    /* ===== ОБЩИЙ РЕЙТИНГ КЛИНИКИ ===== */
+    .clinic-rating-card {
+        background: linear-gradient(135deg, #5b8cff, #2f6fff);
+        border-radius: 28px;
+        padding: 40px;
+        color: white;
+        margin-bottom: 50px;
+        display: flex;
+        align-items: center;
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+    
+    .clinic-rating-big {
+        text-align: center;
+        min-width: 140px;
+    }
+    
+    .clinic-rating-value {
+        font-size: 72px;
+        font-weight: 800;
+        letter-spacing: -3px;
+        line-height: 1;
+    }
+    
+    .clinic-rating-stars {
+        font-size: 24px;
+        margin: 8px 0;
+        letter-spacing: 2px;
+    }
+    
+    .clinic-rating-count {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+    
+    .clinic-rating-bars {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .rating-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .rating-bar-label {
+        font-size: 13px;
+        width: 20px;
+        text-align: right;
+        font-weight: 600;
+    }
+    
+    .rating-bar-track {
+        flex: 1;
+        height: 8px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .rating-bar-fill {
+        height: 100%;
+        background: white;
+        border-radius: 4px;
+        transition: width 1s ease;
+    }
+    
+    .rating-bar-percent {
+        font-size: 12px;
+        width: 35px;
+        opacity: 0.8;
+    }
+    
+    /* ===== РЕЙТИНГ ВРАЧЕЙ ===== */
+    .doctors-rating-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-bottom: 50px;
+    }
+    
+    .doctor-rating-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 28px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: inherit;
+    }
+    
+    .doctor-rating-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(20,40,120,0.1);
+        border-color: var(--accent);
+    }
+    
+    .doctor-rating-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #eef3ff, #dbeafe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--accent);
+        margin: 0 auto 16px;
+    }
+    
+    .doctor-rating-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 4px;
+    }
+    
+    .doctor-rating-specialty {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
+    }
+    
+    .doctor-rating-stars {
+        font-size: 16px;
+        color: var(--amber);
+        margin-bottom: 4px;
+    }
+    
+    .doctor-rating-value {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text);
+    }
+    
+    .doctor-rating-reviews {
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+    
+    /* ===== ОТЗЫВЫ ===== */
+    .reviews-section-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 24px;
+    }
+    
+    .review-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 28px;
+        margin-bottom: 16px;
+        transition: all 0.3s;
+    }
+    
+    .review-card:hover {
+        border-color: #c8d6f7;
+        box-shadow: 0 8px 25px rgba(20,40,120,0.06);
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .review-author-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .review-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #eef3ff, #dbeafe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: var(--accent);
+        font-size: 16px;
+    }
+    
+    .review-author-name {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text);
+    }
+    
+    .review-doctor-name {
+        font-size: 12px;
+        color: var(--text-secondary);
+        margin-top: 1px;
+    }
+    
+    .review-stars {
+        color: var(--amber);
+        font-size: 16px;
+        letter-spacing: 1px;
+    }
+    
+    .review-date {
+        font-size: 12px;
+        color: #bcc6da;
+    }
+    
+    .review-text {
+        color: var(--text-secondary);
+        line-height: 1.7;
+        font-size: 15px;
+        background: var(--bg-secondary);
+        padding: 18px;
+        border-radius: 16px;
+        margin-bottom: 12px;
+    }
+    
+    .review-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .review-response {
+        background: var(--accent-light);
+        border-left: 3px solid var(--accent);
+        padding: 14px 18px;
+        border-radius: 0 12px 12px 0;
+        margin-top: 12px;
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+    
+    .review-response strong {
+        color: var(--accent);
+    }
+    
+    /* ===== КНОПКА ОСТАВИТЬ ОТЗЫВ ===== */
+    .leave-review-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        background: linear-gradient(135deg, #5b8cff, #2f6fff);
+        color: white;
+        border-radius: 16px;
+        font-weight: 700;
+        font-size: 15px;
+        text-decoration: none;
+        transition: all 0.3s;
+        box-shadow: 0 10px 25px rgba(79,140,255,0.25);
+    }
+    
+    .leave-review-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(79,140,255,0.35);
+    }
+    
+    /* ===== ПУСТОЕ СОСТОЯНИЕ ===== */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+    }
+    
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--bg-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        margin: 0 auto 20px;
+    }
+    
+    .empty-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+    
+    .empty-text {
+        color: var(--text-secondary);
+        font-size: 14px;
+        margin-bottom: 24px;
+    }
+    
+    @media (max-width: 768px) {
+        .page-title { font-size: 32px; }
+        .doctors-rating-grid { grid-template-columns: 1fr; }
+        .clinic-rating-card { flex-direction: column; text-align: center; }
+        .clinic-rating-value { font-size: 56px; }
+    }
+</style>
+
+<section style="margin-bottom: 80px;">
+    
+    <div class="page-label">Обратная связь</div>
+    <h1 class="page-title">Отзывы пациентов</h1>
+    <p class="page-subtitle">Что говорят о нас пациенты SmileClinic</p>
+    
+    <!-- ОБЩИЙ РЕЙТИНГ КЛИНИКИ -->
+    {% set total_reviews = reviews|length %}
+    {% set avg_rating = (reviews|sum(attribute='rating') / total_reviews)|round(1) if total_reviews > 0 else 0 %}
+    {% set rating_5 = reviews|selectattr('rating', 'equalto', 5)|list|length %}
+    {% set rating_4 = reviews|selectattr('rating', 'equalto', 4)|list|length %}
+    {% set rating_3 = reviews|selectattr('rating', 'equalto', 3)|list|length %}
+    {% set rating_2 = reviews|selectattr('rating', 'equalto', 2)|list|length %}
+    {% set rating_1 = reviews|selectattr('rating', 'equalto', 1)|list|length %}
+    
+    <div class="clinic-rating-card fade-up">
+        <div class="clinic-rating-big">
+            <div class="clinic-rating-value">{{ avg_rating }}</div>
+            <div class="clinic-rating-stars">
+                {% for i in range(5) %}
+                    {% if i < avg_rating|round(0, 'floor')|int %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </div>
+            <div class="clinic-rating-count">{{ total_reviews }} отзывов</div>
+        </div>
+        
+        <div class="clinic-rating-bars">
+            {% set ratings = [(5, rating_5), (4, rating_4), (3, rating_3), (2, rating_2), (1, rating_1)] %}
+            {% for star, count in ratings %}
+            <div class="rating-bar-row">
+                <span class="rating-bar-label">{{ star }}</span>
+                <div class="rating-bar-track">
+                    <div class="rating-bar-fill" style="width: {{ (count / total_reviews * 100)|round|int if total_reviews > 0 else 0 }}%;"></div>
+                </div>
+                <span class="rating-bar-percent">{{ count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- РЕЙТИНГ ВРАЧЕЙ -->
+    {% if doctors_rating %}
+    <h2 class="reviews-section-title">Рейтинг врачей</h2>
+    
+    <div class="doctors-rating-grid">
+        {% for item in doctors_rating %}
+        <a href="{{ url_for('doctor_reviews', doctor_id=item.doctor.id) }}" class="doctor-rating-card fade-up">
+            <div class="doctor-rating-avatar">
+                {{ item.doctor.last_name[:1] if item.doctor.last_name else '' }}{{ item.doctor.first_name[:1] if item.doctor.first_name else '' }}
+            </div>
+            <div class="doctor-rating-name">{{ item.doctor.full_name }}</div>
+            <div class="doctor-rating-specialty">{{ item.doctor.specialty }}</div>
+            <div class="doctor-rating-stars">
+                {% for i in range(5) %}
+                    {% if i < item.rating|int %}★{% else %}☆{% endif %}
+                {% endfor %}
+            </div>
+            <div class="doctor-rating-value">{{ item.rating }}</div>
+            <div class="doctor-rating-reviews">{{ item.count }} отзывов</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- СПИСОК ОТЗЫВОВ -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+        <h2 class="reviews-section-title" style="margin-bottom: 0;">Отзывы</h2>
+        
+        {% if current_user.is_authenticated and current_user.role == 'patient' %}
+        <a href="{{ url_for('patient_dashboard') }}" class="leave-review-btn">
+            Оставить отзыв
+        </a>
+        {% elif not current_user.is_authenticated %}
+        <a href="{{ url_for('login') }}" class="leave-review-btn">
+            Войти и оставить отзыв
+        </a>
+        {% endif %}
+    </div>
+    
+    {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-card fade-up">
+            <div class="review-header">
+                <div class="review-author-info">
+                    <div class="review-avatar">
+                        {{ review.patient.last_name[:1] if review.patient and review.patient.last_name else 'П' }}{{ review.patient.first_name[:1] if review.patient and review.patient.first_name else 'П' }}
+                    </div>
+                    <div>
+                        <div class="review-author-name">{{ review.patient.full_name if review.patient else 'Пациент' }}</div>
+                        <div class="review-doctor-name">
+                            Врач: {{ review.doctor.full_name if review.doctor else '—' }}
+                            {% if review.doctor and review.doctor.specialty %}
+                                · {{ review.doctor.specialty }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="review-stars">
+                        {% for i in range(5) %}
+                            {% if i < review.rating %}★{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="review-date">{{ review.created_at.strftime('%d.%m.%Y') if review.created_at else '' }}</div>
+                </div>
+            </div>
+            
+            {% if review.comment %}
+            <div class="review-text">{{ review.comment }}</div>
+            {% endif %}
+            
+            {% if review.admin_response %}
+            <div class="review-response">
+                <strong>Ответ SmileClinic:</strong><br>
+                {{ review.admin_response }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">⭐</div>
+            <div class="empty-title">Пока нет отзывов</div>
+            <div class="empty-text">Станьте первым, кто оставит отзыв о нашей клинике!</div>
+            {% if current_user.is_authenticated and current_user.role == 'patient' %}
+            <a href="{{ url_for('patient_dashboard') }}" class="leave-review-btn">
+                Оставить отзыв
+            </a>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+</section>
+
+<script>
+// ===== АНИМАЦИЯ =====
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('show');
+    });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// ===== АНИМАЦИЯ ПОЛОСОК РЕЙТИНГА =====
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.querySelectorAll('.rating-bar-fill').forEach(bar => {
+            bar.style.transition = 'width 1.5s ease';
+        });
+    }, 300);
+});
+</script>
+
+{% endblock %}
+
+

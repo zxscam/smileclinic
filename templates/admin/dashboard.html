@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель — SmileClinic{% endblock %}
+
+{% block content %}
+
+<style>
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 28px;
+    }
+    .stat-card {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+    }
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #0b132b;
+    }
+    .stat-label {
+        font-size: 12px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+    }
+    
+    .admin-section {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    .admin-section h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: #0b132b;
+        margin-bottom: 16px;
+    }
+    
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .admin-table th {
+        text-align: left;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #94a3b8;
+        text-transform: uppercase;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    .admin-table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+    }
+    
+    .admin-btn {
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: 1px solid;
+    }
+    .admin-btn.green {
+        background: #16a34a;
+        color: #fff;
+        border-color: #16a34a;
+    }
+    .admin-btn.red {
+        background: #ef4444;
+        color: #fff;
+        border-color: #ef4444;
+    }
+    .admin-btn.blue {
+        color: #2563eb;
+        border-color: #2563eb;
+    }
+    .admin-btn.gray {
+        color: #64748b;
+        border-color: #e2e8f0;
+    }
+    
+    @media (max-width: 768px) {
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<h1 style="font-size: 28px; font-weight: 700; color: #0b132b; margin-bottom: 24px;">Админ-панель</h1>
+
+<!-- Статистика -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_users }}</div>
+        <div class="stat-label">Пользователей</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_patients }}</div>
+        <div class="stat-label">Пациентов</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.total_doctors }}</div>
+        <div class="stat-label">Врачей</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ stats.today_appointments }}</div>
+        <div class="stat-label">Записей сегодня</div>
+    </div>
+</div>
+
+<!-- Ближайшие записи -->
+<div class="admin-section">
+    <h3>Ближайшие записи</h3>
+    {% if upcoming_appointments %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Время</th>
+                <th>Пациент</th>
+                <th>Врач</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for apt in upcoming_appointments %}
+            <tr>
+                <td>{{ apt.appointment_date.strftime('%d.%m.%Y') }}</td>
+                <td>{{ apt.appointment_time.strftime('%H:%M') }}</td>
+                <td>{{ apt.patient.full_name }}</td>
+                <td>{{ apt.doctor.full_name }}</td>
+                <td>
+                    {% if apt.status == 'scheduled' %}
+                        <span style="color:#2563eb; font-weight:600;">Запланирован</span>
+                    {% elif apt.status == 'completed' %}
+                        <span style="color:#16a34a; font-weight:600;">Выполнен</span>
+                    {% else %}
+                        <span style="color:#ef4444; font-weight:600;">Отменён</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#94a3b8;">Нет предстоящих записей</p>
+    {% endif %}
+</div>
+
+<!-- Отзывы на модерации -->
+<div class="admin-section">
+    <h3>Отзывы на модерации ({{ stats.pending_reviews }})</h3>
+    {% if pending_reviews %}
+        {% for review in pending_reviews %}
+        <div style="border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between;">
+                <strong style="color:#0b132b;">{{ review.patient.full_name }}</strong>
+                <span style="color:#f59e0b;">{{ '★' * review.rating }}{{ '☆' * (5 - review.rating) }}</span>
+            </div>
+            <p style="color:#64748b; font-size:13px; margin:6px 0;">{{ review.comment[:100] }}...</p>
+            <small style="color:#94a3b8;">{{ review.doctor.full_name }}</small>
+            <div style="margin-top:8px; display:flex; gap:8px;">
+                <a href="{{ url_for('approve_review', review_id=review.id) }}" class="admin-btn green">Одобрить</a>
+                <a href="{{ url_for('delete_review', review_id=review.id) }}" class="admin-btn red" onclick="return confirm('Удалить?')">Удалить</a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p style="color:#94a3b8;">Все отзывы обработаны</p>
+    {% endif %}
+</div>
+
+<!-- Быстрые ссылки -->
+<div class="admin-section">
+    <h3>Быстрые действия</h3>
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{{ url_for('admin_users') }}" class="admin-btn blue">Пользователи</a>
+        <a href="{{ url_for('admin_appointments') }}" class="admin-btn blue">Все записи</a>
+        <a href="{{ url_for('admin_reviews') }}" class="admin-btn blue">Отзывы</a>
+        <a href="{{ url_for('admin_services') }}" class="admin-btn gray">Услуги</a>
+        <a href="{{ url_for('admin_promotions') }}" class="admin-btn gray">Акции</a>
+        <a href="{{ url_for('patients') }}" class="admin-btn gray">Пациенты</a>
+        <a href="{{ url_for('schedule') }}" class="admin-btn gray">Расписание</a>
+<a href="{{ url_for('admin_edit_schedule') }}" class="admin-btn blue">📅 Редактировать расписание</a>
+        <a href="/" class="admin-btn gray">На сайт</a>
+    </div>
+</div>
+
+{% endblock %}

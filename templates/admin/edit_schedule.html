@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Редактирование расписания — Админ{% endblock %}
+{% block content %}
+
+<style>
+    .admin-title { font-size: 28px; font-weight: 700; color: #0b132b; margin-bottom: 8px; }
+    .admin-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+    .admin-input, .admin-select { 
+        padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; 
+        width: 100%; margin-bottom: 10px; background: #fff;
+    }
+    .admin-btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; 
+                 text-decoration: none; cursor: pointer; border: none; display: inline-block; }
+    .admin-btn.blue { background: #2563eb; color: #fff; }
+    .admin-btn.green { background: #16a34a; color: #fff; }
+    .admin-btn.red { background: #ef4444; color: #fff; }
+    .admin-btn.gray { background: #e2e8f0; color: #64748b; }
+    .admin-btn.sm { padding: 4px 10px; font-size: 11px; border-radius: 6px; }
+    
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    
+    .apt-row { 
+        display: flex; justify-content: space-between; align-items: center; 
+        padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; margin-bottom: 6px;
+        flex-wrap: wrap; gap: 8px;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    }
+</style>
+
+<a href="{{ url_for('admin_panel') }}" class="admin-btn gray" style="margin-bottom:16px;">← Назад</a>
+<h1 class="admin-title">Редактирование расписания</h1>
+<p style="color:#94a3b8; margin-bottom:24px;">Добавление, изменение и удаление записей</p>
+
+<!-- ФОРМА ДОБАВЛЕНИЯ -->
+<div class="admin-card">
+    <h3 style="font-size:18px; font-weight:700; color:#0b132b; margin-bottom:16px;">➕ Новая запись</h3>
+    
+    <form method="POST" action="{{ url_for('admin_edit_schedule') }}">
+        <input type="hidden" name="action" value="add">
+        
+        <div class="form-row">
+            <select name="patient_id" class="admin-select" required>
+                <option value="">Выберите пациента</option>
+                {% for p in patients %}
+                <option value="{{ p.id }}">{{ p.last_name }} {{ p.first_name }} ({{ p.phone }})</option>
+                {% endfor %}
+            </select>
+            
+            <select name="doctor_id" class="admin-select" required>
+                <option value="">Выберите врача</option>
+                {% for d in doctors %}
+                <option value="{{ d.id }}">{{ d.last_name }} {{ d.first_name }} — {{ d.specialty }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-row">
+            <select name="service_id" class="admin-select" required>
+                <option value="">Выберите услугу</option>
+                {% for s in services %}
+                <option value="{{ s.id }}">{{ s.name }} — {{ s.price }} ₽ ({{ s.duration }} мин)</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-row">
+            <input type="date" name="date" class="admin-input" required>
+            <input type="time" name="time" class="admin-input" required>
+        </div>
+        
+        <input type="text" name="notes" class="admin-input" placeholder="Примечания (необязательно)">
+        
+        <button type="submit" class="admin-btn blue">Добавить запись</button>
+    </form>
+</div>
+
+<!-- СПИСОК ЗАПИСЕЙ -->
+<div class="admin-card">
+    <h3 style="font-size:18px; font-weight:700; color:#0b132b; margin-bottom:16px;">📋 Ближайшие записи</h3>
+    
+    {% if appointments %}
+        {% for apt in appointments %}
+        <div class="apt-row">
+            <div style="flex:1; min-width:200px;">
+                <strong style="color:#0b132b;">{{ apt.appointment_date.strftime('%d.%m.%Y') }} в {{ apt.appointment_time.strftime('%H:%M') }}</strong>
+                <div style="color:#64748b; font-size:13px;">
+                    {{ apt.patient.last_name }} {{ apt.patient.first_name }} → {{ apt.doctor.last_name }} {{ apt.doctor.first_name }}
+                </div>
+                <div style="color:#94a3b8; font-size:12px;">{{ apt.service.name }} · {{ apt.service.price }} ₽</div>
+            </div>
+            <span style="padding:4px 10px; border-radius:12px; font-size:11px; font-weight:600;
+                {% if apt.status=='scheduled' %}background:#eff6ff; color:#2563eb;
+                {% elif apt.status=='completed' %}background:#f0fdf4; color:#16a34a;
+                {% else %}background:#fef2f2; color:#ef4444;{% endif %}">
+                {{ 'Запланирован' if apt.status=='scheduled' else 'Выполнен' if apt.status=='completed' else 'Отменён' }}
+            </span>
+            <button onclick="editApt('{{ apt.id }}', '{{ apt.doctor_id }}', '{{ apt.service_id }}', '{{ apt.appointment_date }}', '{{ apt.appointment_time.strftime('%H:%M') }}', '{{ apt.notes or '' }}')" class="admin-btn blue sm">✏️</button>
+            <form method="POST" action="{{ url_for('admin_edit_schedule') }}" style="display:inline;" onsubmit="return confirm('Удалить запись?')">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="appointment_id" value="{{ apt.id }}">
+                <button type="submit" class="admin-btn red sm">🗑</button>
+            </form>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p style="color:#94a3b8; text-align:center; padding:20px;">Нет записей</p>
+    {% endif %}
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:16px; padding:24px; max-width:500px; width:90%;">
+        <h3 style="margin-bottom:16px;">✏️ Редактировать запись</h3>
+        <form method="POST" action="{{ url_for('admin_edit_schedule') }}">
+            <input type="hidden" name="action" value="edit">
+            <input type="hidden" name="appointment_id" id="editId">
+            
+            <select name="doctor_id" id="editDoctor" class="admin-select" required>
+                {% for d in doctors %}
+                <option value="{{ d.id }}">{{ d.last_name }} {{ d.first_name }}</option>
+                {% endfor %}
+            </select>
+            
+            <select name="service_id" id="editService" class="admin-select" required>
+                {% for s in services %}
+                <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+            </select>
+            
+            <div class="form-row">
+                <input type="date" name="date" id="editDate" class="admin-input" required>
+                <input type="time" name="time" id="editTime" class="admin-input" required>
+            </div>
+            
+            <input type="text" name="notes" id="editNotes" class="admin-input" placeholder="Примечания">
+            
+            <div style="display:flex; gap:10px; margin-top:12px;">
+                <button type="submit" class="admin-btn blue">Сохранить</button>
+                <button type="button" onclick="document.getElementById('editModal').style.display='none'" class="admin-btn gray">Отмена</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editApt(id, doctor, service, date, time, notes) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editDoctor').value = doctor;
+    document.getElementById('editService').value = service;
+    document.getElementById('editDate').value = date;
+    document.getElementById('editTime').value = time;
+    document.getElementById('editNotes').value = notes;
+    document.getElementById('editModal').style.display = 'flex';
+}
+</script>
+
+{% endblock %}

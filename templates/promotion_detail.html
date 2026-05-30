@@ -1,0 +1,118 @@
+﻿{% extends "base.html" %}
+
+{% block title %}{{ promotion.title }} - MedService{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 40px auto;">
+    
+    <div class="card" style="overflow: hidden;">
+        
+        <!-- Изображение -->
+        {% if promotion.image_url %}
+        <img src="{{ promotion.image_url }}" alt="{{ promotion.title }}" 
+             style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px 10px 0 0;">
+        {% else %}
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    height: 250px; display: flex; align-items: center; justify-content: center;">
+            <span style="font-size: 100px;">🎁</span>
+        </div>
+        {% endif %}
+        
+        <div style="padding: 30px;">
+            
+            <!-- Заголовок и скидка -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h1 style="margin: 0; font-size: 28px;">{{ promotion.title }}</h1>
+                <span style="background: #e74c3c; color: white; padding: 12px 25px; border-radius: 30px; 
+                             font-size: 24px; font-weight: bold; white-space: nowrap;">
+                    -{{ promotion.discount_percent }}%
+                </span>
+            </div>
+            
+            <hr style="margin: 20px 0;">
+            
+            <!-- Описание -->
+            <div style="font-size: 16px; line-height: 1.8; color: #444;">
+                {{ promotion.description }}
+            </div>
+            
+            <!-- Детали -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 30px 0;">
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                    <h4 style="margin-top: 0;">📅 Период действия</h4>
+                    <p><strong>Начало:</strong> {{ promotion.start_date.strftime('%d.%m.%Y') }}</p>
+                    <p><strong>Окончание:</strong> {{ promotion.end_date.strftime('%d.%m.%Y') }}</p>
+                    
+                    {% if promotion.is_valid %}
+                    <div style="background: #d4edda; color: #155724; padding: 8px 12px; border-radius: 8px; margin-top: 10px;">
+                        ✅ Акция активна! Осталось {{ promotion.days_left }} дн.
+                    </div>
+                    {% else %}
+                    <div style="background: #f8d7da; color: #721c24; padding: 8px 12px; border-radius: 8px; margin-top: 10px;">
+                        ❌ Акция завершена
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 12px;">
+                    <h4 style="margin-top: 0;">💊 Услуга</h4>
+                    {% if promotion.service %}
+                    <p><strong>{{ promotion.service.name }}</strong></p>
+                    <p>📝 {{ promotion.service.description[:100] }}...</p>
+                    <hr>
+                    <p><strong>Обычная цена:</strong> 
+                        <span style="text-decoration: line-through;">{{ promotion.service.price }} ₽</span>
+                    </p>
+                    <p style="font-size: 20px;">
+                        <strong>Цена со скидкой:</strong> 
+                        <span style="color: #e74c3c; font-weight: bold;">{{ promotion.discount_price }} ₽</span>
+                    </p>
+                    <p style="color: #27ae60;">💰 Вы экономите: 
+                        {{ (promotion.service.price - promotion.discount_price)|round(2) }} ₽
+                    </p>
+                    {% else %}
+                    <p><strong>Действует на все услуги клиники</strong></p>
+                    <p>🎯 Скидка применяется к любой услуге из нашего каталога</p>
+                    {% endif %}
+                </div>
+                
+            </div>
+            
+            <!-- Кнопки действий -->
+            {% if promotion.is_valid %}
+                {% if current_user.is_authenticated and current_user.role == 'patient' %}
+                <a href="{{ url_for('apply_promotion', promotion_id=promotion.id) }}" 
+                   style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; 
+                          padding: 18px 30px; font-size: 20px; text-decoration: none; border-radius: 12px; 
+                          display: block; text-align: center; font-weight: bold; transition: transform 0.3s;"
+                   onmouseover="this.style.transform='scale(1.02)'" 
+                   onmouseout="this.style.transform='scale(1)'">
+                    🎉 Записаться со скидкой {{ promotion.discount_percent }}%
+                </a>
+                {% elif not current_user.is_authenticated %}
+                <a href="{{ url_for('login') }}" 
+                   style="background: #3498db; color: white; padding: 18px; font-size: 20px; 
+                          text-decoration: none; border-radius: 12px; display: block; text-align: center; font-weight: bold;">
+                    🔑 Войдите, чтобы записаться
+                </a>
+                {% endif %}
+            {% else %}
+                <div style="background: #f8d7da; color: #721c24; padding: 18px; border-radius: 12px; text-align: center; font-size: 18px;">
+                    ❌ К сожалению, срок действия акции истёк
+                </div>
+            {% endif %}
+            
+        </div>
+    </div>
+    
+    <!-- Навигация -->
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{{ url_for('promotions') }}" class="btn btn-primary" style="padding: 10px 25px;">
+            ← Ко всем акциям
+        </a>
+    </div>
+    
+</div>
+{% endblock %}
+

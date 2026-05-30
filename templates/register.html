@@ -1,0 +1,73 @@
+ё{% extends "base.html" %}
+
+{% block title %}Регистрация — SmileClinic{% endblock %}
+
+{% block content %}
+
+<style>
+    .reg-box {
+        max-width: 440px;
+        margin: 50px auto;
+        background: var(--bg-card, #fff);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 16px;
+        padding: 36px;
+    }
+    .reg-title { color: var(--text, #0b132b); }
+    .reg-subtitle { color: var(--text-muted, #94a3b8); }
+    .reg-label { color: var(--text, #0b132b); }
+    .reg-input, .reg-select {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 8px;
+        font-size: 15px;
+        margin-top: 4px;
+        background: var(--bg-input, #f8fafc);
+        color: var(--text, #0b132b);
+    }
+    .reg-input:focus, .reg-select:focus { outline: none; border-color: var(--accent, #2563eb); }
+    .reg-btn {
+        width: 100%;
+        padding: 12px;
+        background: var(--accent, #2563eb);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .reg-link { color: var(--text-muted, #94a3b8); }
+    .reg-link a { color: var(--accent, #2563eb); font-weight: 600; text-decoration: none; }
+</style>
+
+<div class="reg-box">
+    <div style="text-align: center; margin-bottom: 28px;">
+        <div style="font-size: 40px; margin-bottom: 8px;">📝</div>
+        <h2 class="reg-title" style="margin:0; font-size:22px;">Регистрация</h2>
+        <p class="reg-subtitle" style="font-size:14px; margin:4px 0 0;">Создайте аккаунт</p>
+    </div>
+    
+    <form method="POST" action="{{ url_for('register') }}">
+        <div style="margin-bottom: 14px;">
+            <label class="reg-label" style="font-size:13px; font-weight:600;">Логин</label>
+            <input type="text" name="username" class="reg-input" placeholder="Придумайте логин" required>
+        </div>
+        <div style="margin-bottom: 14px;">
+            <label class="reg-label" style="font-size:13px; font-weight:600;">Email</label>
+            <input type="email" name="email" class="reg-input" placeholder="your@email.com" required>
+        </div>
+        <div style="margin-bottom: 14px;">
+            <label class="reg-label" style="font-size:13px; font-weight:600;">Пароль</label>
+            <input type="password" name="password" class="reg-input" placeholder="Минимум 6 символов" required minlength="6">
+        </div>
+        <button type="submit" class="reg-btn">Зарегистрироваться</button>
+    </form>
+    
+    <p class="reg-link" style="text-align:center; margin-top:18px; font-size:14px;">
+        Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a>
+    </p>
+</div>
+
+{% endblock %}
