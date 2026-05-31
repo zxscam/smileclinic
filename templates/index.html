@@ -381,23 +381,28 @@
         <div style="max-width:420px; color:var(--text-secondary); line-height:1.8; font-size:16px;">Предлагаем полный спектр стоматологических услуг для взрослых и детей.</div>
     </div>
 
-    <div class="grid-4" style="gap:28px;">
+        <div class="grid-4" style="gap:28px;">
         {% if services %}
             {% for service in services %}
             <div class="fade-up hover-card" style="background:var(--bg-card); border:1px solid var(--border); border-radius:28px; overflow:hidden;">
                 <div style="height:210px; overflow:hidden; background:var(--bg-secondary);">
                     {% set service_images = ['consult', 'caries', 'cleaning', 'extraction', 'braces', 'whitening'] %}
-<img src="{{ url_for('static', filename='images/service-' + service_images[loop.index0 % 6] + '.jpg') }}"
+                    <img src="{{ url_for('static', filename='images/service-' + service_images[loop.index0 % 6] + '.jpg') }}"
                          alt="{{ service.name }}"
                          style="width:100%; height:100%; object-fit:cover;"
                          onerror="this.parentElement.innerHTML='<div style=\'height:100%; display:flex; align-items:center; justify-content:center; color:var(--accent); font-weight:600;\'>{{ service.name[:20] }}</div>'">
                 </div>
                 <div style="padding:28px;">
-                    <h3 style="font-size:22px; font-weight:700; margin-bottom:12px; color:var(--text);">{{ service.name }}</h3>
-                    <p style="color:var(--text-secondary); line-height:1.7; font-size:15px; margin-bottom:22px;">{{ service.description[:90] if service.description else '' }}</p>
+                    {% set names = ['Консультация терапевта','Лечение кариеса','Профессиональная чистка','Удаление зуба','Установка брекетов','Отбеливание зубов'] %}
+                    {% set descs = ['Первичный осмотр и план лечения','Удаление кариеса и пломбирование','Ультразвук, Air Flow, полировка','Хирургическое удаление','Установка брекет-системы','Отбеливание Zoom'] %}
+                    {% set prices = [1500,3500,3000,5000,25000,15000] %}
+                    {% set durs = [30,60,45,60,90,90] %}
+                    
+                    <h3 style="font-size:22px; font-weight:700; margin-bottom:12px; color:var(--text);">{{ names[loop.index0] }}</h3>
+                    <p style="color:var(--text-secondary); line-height:1.7; font-size:15px; margin-bottom:22px;">{{ descs[loop.index0] }}</p>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="font-size:20px; font-weight:700; color:var(--accent);">{{ service.price if service.price else '—' }} ₽</div>
-                        <div style="background:var(--accent-light); color:var(--accent); padding:10px 14px; border-radius:14px; font-size:13px; font-weight:600;">{{ service.duration if service.duration else '—' }} мин</div>
+                        <div style="font-size:20px; font-weight:700; color:var(--accent);">{{ prices[loop.index0] }} ₽</div>
+                        <div style="background:var(--accent-light); color:var(--accent); padding:10px 14px; border-radius:14px; font-size:13px; font-weight:600;">{{ durs[loop.index0] }} мин</div>
                     </div>
                 </div>
             </div>
