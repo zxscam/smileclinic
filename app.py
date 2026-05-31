@@ -1276,30 +1276,58 @@ def admin_edit_schedule():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        from models import User, Doctor, Service, Promotion
         from werkzeug.security import generate_password_hash
-        from datetime import datetime, timedelta, date
+        from datetime import date
         
-        # Создаём данные только если их нет
+        # Заполняем только если база пустая
         if not User.query.first():
+            print("🔄 Заполнение базы данных...")
+            
             # Админ
-            db.session.add(User(username='admin', email='admin@s.ru', password_hash=generate_password_hash('admin'), role='admin'))
+            db.session.add(User(username='admin', email='admin@smileclinic.ru', 
+                              password_hash=generate_password_hash('admin'), role='admin'))
             
             # Врачи
-            for uname, f, l, s in [('petrov.ivan','Иван','Петров','Терапевт'),('sidorova.maria','Мария','Сидорова','Ортодонт'),('ivanov.alexey','Алексей','Иванов','Хирург')]:
-                u = User(username=uname, email=f'{uname}@c.ru', password_hash=generate_password_hash('password'), role='doctor')
+            doctors_data = [
+                ('petrov.ivan', 'password', 'petrov.ivan@smileclinic.ru', 'Иван', 'Петров', 'Терапевт', '09:00', '18:00'),
+                ('sidorova.maria', 'password', 'sidorova.maria@smileclinic.ru', 'Мария', 'Сидорова', 'Ортодонт', '10:00', '19:00'),
+                ('ivanov.alexey', 'password', 'ivanov.alexey@smileclinic.ru', 'Алексей', 'Иванов', 'Хирург', '08:00', '17:00')
+            ]
+            for uname, pw, em, fn, ln, sp, ws, we in doctors_data:
+                u = User(username=uname, email=em, password_hash=generate_password_hash(pw), role='doctor')
                 db.session.add(u); db.session.flush()
-                db.session.add(Doctor(user_id=u.id, first_name=f, last_name=l, specialty=s))
+                db.session.add(Doctor(user_id=u.id, first_name=fn, last_name=ln, specialty=sp,
+                                      work_hours_start=datetime.strptime(ws, '%H:%M').time(),
+                                      work_hours_end=datetime.strptime(we, '%H:%M').time()))
+            print("✅ Врачи (3)")
             
             # Услуги
-            for n, d, dur, p in [('Консультация','Осмотр',30,1500),('Лечение кариеса','Пломба',60,3500),('Чистка','Ультразвук',45,3000),('Удаление','Хирургия',60,5000),('Брекеты','Установка',90,25000),('Отбеливание','Zoom',90,15000)]:
+            for n, d, dur, p in [
+                ('Консультация терапевта', 'Первичный осмотр, диагностика и план лечения', 30, 1500),
+                ('Лечение кариеса', 'Удаление кариозных тканей и пломбирование', 60, 3500),
+                ('Профессиональная чистка', 'Ультразвук, Air Flow, полировка', 45, 3000),
+                ('Удаление зуба', 'Хирургическое удаление любой сложности', 60, 5000),
+                ('Установка брекетов', 'Консультация ортодонта и установка', 90, 25000),
+                ('Отбеливание зубов', 'Профессиональное отбеливание Zoom', 90, 15000)
+            ]:
                 db.session.add(Service(name=n, description=d, duration=dur, price=p))
+            print("✅ Услуги (6)")
             
+            # Акции
             t = date.today()
-            for ti, d, dis, si in [('Скидка 20%','Новым',20,1),('Чистка -30%','Акция',30,3),('Рассрочка 0%','Брекеты',15,5),('Приведи друга','-10%',10,None)]:
-                db.session.add(Promotion(title=ti, description=d, discount_percent=dis, service_id=si, start_date=t, end_date=t+timedelta(30), is_active=True))
+            for ti, desc, dis, sid in [
+                ('Скидка 20% на первую консультацию', 'Для новых пациентов. Полный осмотр и план лечения.', 20, 1),
+                ('Чистка со скидкой 30%', 'Комплексная профессиональная чистка.', 30, 3),
+                ('Рассрочка 0% на брекеты', 'Беспроцентная рассрочка на 12 месяцев.', 15, 5),
+                ('Приведи друга — скидка 10%', 'Скидка вам и другу на любую услугу.', 10, None)
+            ]:
+                db.session.add(Promotion(title=ti, description=desc, discount_percent=dis, service_id=sid,
+                                        start_date=t-timedelta(5), end_date=t+timedelta(25), is_active=True))
+            print("✅ Акции (4)")
             
             db.session.commit()
-            print("ДАННЫЕ ЗАГРУЖЕНЫ!")
+            print("\n🎉 БАЗА ЗАПОЛНЕНА!")
+            print("👑 admin / admin")
+            print("👨‍⚕️ petrov.ivan / password")
     
     app.run(host='0.0.0.0', port=10000)
