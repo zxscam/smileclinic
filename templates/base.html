@@ -53,7 +53,6 @@
             -webkit-font-smoothing: antialiased;
         }
         
-        /* Навбар */
         .navbar {
             background: var(--bg);
             border-bottom: 1px solid var(--border);
@@ -141,14 +140,12 @@
             background: var(--accent-light);
         }
         
-        /* Контейнер */
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 32px 24px;
         }
         
-        /* Карточка */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -157,7 +154,6 @@
             margin-bottom: 20px;
         }
         
-        /* Кнопки */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -201,7 +197,6 @@
             color: var(--red);
         }
         
-        /* Таблицы */
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -223,7 +218,6 @@
             border-bottom: 1px solid var(--border);
         }
         
-        /* Формы */
         .form-group { margin-bottom: 18px; }
         
         .form-label {
@@ -250,7 +244,6 @@
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
         
-        /* Бейджи */
         .badge {
             display: inline-block;
             padding: 3px 10px;
@@ -260,55 +253,16 @@
             border: 1px solid;
         }
         
-        .badge-blue {
-            background: #eff6ff;
-            color: #2563eb;
-            border-color: #bfdbfe;
-        }
+        .badge-blue { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .badge-green { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+        .badge-red { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+        .badge-gray { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
         
-        .badge-green {
-            background: #f0fdf4;
-            color: #16a34a;
-            border-color: #bbf7d0;
-        }
+        [data-theme="dark"] .badge-blue { background: #1e3a5f; color: #60a5fa; border-color: #2563eb; }
+        [data-theme="dark"] .badge-green { background: #14532d; color: #4ade80; border-color: #16a34a; }
+        [data-theme="dark"] .badge-red { background: #450a0a; color: #f87171; border-color: #dc2626; }
+        [data-theme="dark"] .badge-gray { background: #1e293b; color: #94a3b8; border-color: #334155; }
         
-        .badge-red {
-            background: #fef2f2;
-            color: #dc2626;
-            border-color: #fecaca;
-        }
-        
-        .badge-gray {
-            background: #f8fafc;
-            color: #64748b;
-            border-color: #e2e8f0;
-        }
-        
-        [data-theme="dark"] .badge-blue {
-            background: #1e3a5f;
-            color: #60a5fa;
-            border-color: #2563eb;
-        }
-        
-        [data-theme="dark"] .badge-green {
-            background: #14532d;
-            color: #4ade80;
-            border-color: #16a34a;
-        }
-        
-        [data-theme="dark"] .badge-red {
-            background: #450a0a;
-            color: #f87171;
-            border-color: #dc2626;
-        }
-        
-        [data-theme="dark"] .badge-gray {
-            background: #1e293b;
-            color: #94a3b8;
-            border-color: #334155;
-        }
-        
-        /* Алерты */
         .alert {
             padding: 12px 18px;
             border-radius: var(--radius);
@@ -319,7 +273,6 @@
             color: #1e40af;
         }
         
-        /* Футер */
         .footer {
             border-top: 1px solid var(--border);
             padding: 32px 0;
@@ -329,50 +282,29 @@
             margin-top: 60px;
         }
         
-        /* Сетки */
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         
-        /* Изображения */
-        .img-cover {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .img-cover { width: 100%; height: 100%; object-fit: cover; }
         
         .img-placeholder {
             background: var(--accent-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 18px;
-            width: 100%;
-            height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-weight: 600; font-size: 18px;
+            width: 100%; height: 100%;
         }
         
         .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--border);
+            width: 120px; height: 120px; border-radius: 50%;
+            object-fit: cover; border: 2px solid var(--border);
         }
         
         .avatar-placeholder {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
+            width: 120px; height: 120px; border-radius: 50%;
             background: var(--accent-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent);
-            font-weight: 600;
-            font-size: 24px;
-            margin: 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-weight: 600; font-size: 24px; margin: 0 auto;
         }
         
         @media (max-width: 768px) {
@@ -403,6 +335,7 @@
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('dashboard') }}" class="nav-link">Кабинет</a>
                     <a href="{{ url_for('schedule') }}" class="nav-link">Расписание</a>
+                    <a href="{{ url_for('chat_list') }}" class="nav-link">Чат</a>
                     {% if current_user.role == 'patient' %}
                         <a href="{{ url_for('appointment') }}" class="nav-link">Запись</a>
                     {% endif %}
@@ -437,13 +370,13 @@
         {% block content %}{% endblock %}
     </div>
     
- <footer class="footer">
-    <div class="container">
-        <p style="font-weight:600; font-size:15px; color:var(--text);">SmileClinic</p>
-        <p>&copy; 2026 SmileClinic. Все права защищены.</p>
-        <p>+7 (993) 402-57-84 &nbsp;·&nbsp; renatafalyakhutdinos@gmail.com</p>
-    </div>
-</footer>
+    <footer class="footer">
+        <div class="container">
+            <p style="font-weight:600; font-size:15px; color:var(--text);">SmileClinic</p>
+            <p>&copy; 2026 SmileClinic. Все права защищены.</p>
+            <p>+7 (993) 402-57-84 &nbsp;·&nbsp; renatafalyakhutdinos@gmail.com</p>
+        </div>
+    </footer>
     
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
