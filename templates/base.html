@@ -2,7 +2,7 @@
 <html lang="ru" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}SmileClinic{% endblock %}</title>
     <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     
@@ -11,81 +11,63 @@
             --bg: #ffffff;
             --bg-secondary: #f8fafc;
             --bg-card: #ffffff;
-            --bg-input: #f8fafc;
-            --bg-hover: #f1f5f9;
-            --bg-navbar: rgba(255, 255, 255, 0.95);
-            --text: #0b132b;
-            --text-secondary: #475569;
+            --text: #1e293b;
+            --text-secondary: #64748b;
             --text-muted: #94a3b8;
             --border: #e2e8f0;
             --accent: #2563eb;
             --accent-light: #eff6ff;
             --accent-hover: #1d4ed8;
-            --red: #ef4444;
-            --red-light: #fef2f2;
+            --red: #dc2626;
             --green: #16a34a;
-            --green-light: #f0fdf4;
             --amber: #f59e0b;
             --shadow: 0 1px 3px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 20px rgba(0,0,0,0.06);
-            --transition: all 0.2s ease;
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05);
+            --radius: 8px;
+            --radius-lg: 12px;
         }
         
         [data-theme="dark"] {
             --bg: #0f172a;
             --bg-secondary: #1e293b;
             --bg-card: #1e293b;
-            --bg-input: #1e293b;
-            --bg-hover: #334155;
-            --bg-navbar: rgba(15, 23, 42, 0.95);
             --text: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-muted: #94a3b8;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
             --border: #334155;
             --accent: #3b82f6;
             --accent-light: #1e3a5f;
             --accent-hover: #60a5fa;
-            --red: #f87171;
-            --red-light: #450a0a;
-            --green: #4ade80;
-            --green-light: #14532d;
-            --amber: #fbbf24;
-            --shadow: 0 1px 3px rgba(0,0,0,0.4);
-            --shadow-md: 0 4px 20px rgba(0,0,0,0.5);
+            --shadow: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        html { -webkit-text-size-adjust: 100%; }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
             background: var(--bg);
             color: var(--text);
             line-height: 1.5;
             font-size: 15px;
-            transition: background 0.3s, color 0.3s;
-            min-width: 320px;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
         
-        img { max-width: 100%; height: auto; }
-        
+        /* Навбар */
         .navbar {
-            background: var(--bg-navbar);
-            backdrop-filter: blur(10px);
+            background: var(--bg);
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 100;
-            transition: background 0.3s, border-color 0.3s;
+            height: 56px;
         }
         
         .navbar-inner {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 16px;
-            height: 56px;
+            padding: 0 24px;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -94,357 +76,310 @@
         .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             text-decoration: none;
             color: var(--text);
-            font-weight: 700;
+            font-weight: 600;
             font-size: 18px;
-            flex-shrink: 0;
+            letter-spacing: -0.3px;
         }
         
-        .navbar-brand img { width: 36px; height: 36px; border-radius: 8px; }
-        .navbar-links { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; }
+        .navbar-brand img {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+        }
+        
+        .navbar-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
         
         .nav-link {
             color: var(--text-secondary);
             text-decoration: none;
-            padding: 6px 10px;
-            border-radius: 16px;
-            font-size: 13px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
             font-weight: 500;
-            transition: var(--transition);
+            transition: all 0.15s;
             border: 1px solid transparent;
-            white-space: nowrap;
         }
         
-        .nav-link:hover { background: var(--bg-hover); color: var(--accent); border-color: var(--accent); }
+        .nav-link:hover {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        
+        .nav-link.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
         
         .theme-btn {
             background: none;
             border: 1px solid var(--border);
-            border-radius: 50%;
-            width: 34px;
-            height: 34px;
+            border-radius: 20px;
+            width: 36px;
+            height: 36px;
             cursor: pointer;
             font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: var(--transition);
+            transition: all 0.15s;
+            margin-left: 8px;
             color: var(--text-secondary);
-            flex-shrink: 0;
         }
         
-        .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .theme-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
         
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
+        /* Контейнер */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
         
+        /* Карточка */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+        
+        /* Кнопки */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 10px 18px;
+            padding: 10px 22px;
             border: 1px solid var(--border);
-            border-radius: 16px;
+            border-radius: 20px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             text-decoration: none;
-            transition: var(--transition);
+            transition: all 0.15s;
             background: var(--bg);
             color: var(--text);
-            white-space: nowrap;
         }
         
-        .btn:hover { border-color: var(--accent); color: var(--accent); background: var(--bg-hover); }
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { background: var(--accent-hover); color: #fff; }
-        .btn-danger { color: var(--red); border-color: var(--red); }
-        .btn-danger:hover { background: var(--red-light); }
-        
-.form-input, .form-select, .form-textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 15px;
-    background: var(--bg-input);
-    color: var(--text);
-    transition: var(--transition);
-}
-
-.form-input:focus, .form-select:focus, .form-textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-}
-
-.form-input::placeholder {
-    color: var(--text-muted);
-}
-
-.form-select {
-    appearance: none;
-    cursor: pointer;
-}
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: background 0.3s, border-color 0.3s;
+        .btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
         }
         
-        .table { width: 100%; border-collapse: collapse; }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            color: #fff;
+        }
+        
+        .btn-danger {
+            color: var(--red);
+            border-color: #fecaca;
+        }
+        
+        .btn-danger:hover {
+            background: #fef2f2;
+            color: var(--red);
+        }
+        
+        /* Таблицы */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
         .table th {
             text-align: left;
-            padding: 10px 12px;
-            font-size: 11px;
+            padding: 10px 14px;
+            font-size: 12px;
             font-weight: 600;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-bottom: 2px solid var(--border);
-            background: var(--bg-secondary);
         }
-        .table td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); font-size: 13px; }
-        .table tr:hover td { background: var(--bg-hover); }
         
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
+        .table td {
             padding: 12px 14px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 14px;
-            background: var(--bg-input);
-            color: var(--text);
-            transition: var(--transition);
+            border-bottom: 1px solid var(--border);
         }
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
+        
+        /* Формы */
+        .form-group { margin-bottom: 18px; }
+        
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.15s;
+        }
+        
+        .form-input:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
         }
-        .form-input::placeholder { color: var(--text-muted); }
         
-        .alert {
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            font-size: 14px;
-            margin-bottom: 12px;
-            border: 1px solid var(--accent);
-            background: var(--accent-light);
-            color: var(--accent);
-        }
-        
+        /* Бейджи */
         .badge {
             display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
             border: 1px solid;
         }
-        .badge-blue { background: var(--accent-light); color: var(--accent); border-color: var(--accent); }
-        .badge-green { background: var(--green-light); color: var(--green); border-color: var(--green); }
-        .badge-red { background: var(--red-light); color: var(--red); border-color: var(--red); }
-        .badge-gray { background: var(--bg-secondary); color: var(--text-muted); border-color: var(--border); }
         
+        .badge-blue {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+        
+        .badge-green {
+            background: #f0fdf4;
+            color: #16a34a;
+            border-color: #bbf7d0;
+        }
+        
+        .badge-red {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        
+        .badge-gray {
+            background: #f8fafc;
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+        
+        [data-theme="dark"] .badge-blue {
+            background: #1e3a5f;
+            color: #60a5fa;
+            border-color: #2563eb;
+        }
+        
+        [data-theme="dark"] .badge-green {
+            background: #14532d;
+            color: #4ade80;
+            border-color: #16a34a;
+        }
+        
+        [data-theme="dark"] .badge-red {
+            background: #450a0a;
+            color: #f87171;
+            border-color: #dc2626;
+        }
+        
+        [data-theme="dark"] .badge-gray {
+            background: #1e293b;
+            color: #94a3b8;
+            border-color: #334155;
+        }
+        
+        /* Алерты */
+        .alert {
+            padding: 12px 18px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            margin-bottom: 16px;
+            border: 1px solid #bfdbfe;
+            background: var(--accent-light);
+            color: #1e40af;
+        }
+        
+        /* Футер */
         .footer {
             border-top: 1px solid var(--border);
-            padding: 24px 16px;
+            padding: 32px 0;
             text-align: center;
             color: var(--text-muted);
             font-size: 13px;
-            margin-top: 40px;
-            transition: border-color 0.3s;
+            margin-top: 60px;
         }
         
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        /* Сетки */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        
-        .fade-up {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
+        /* Изображения */
+        .img-cover {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        .fade-up.show { opacity: 1; transform: translateY(0); }
         
-        /* ===== ТЕЛЕФОНЫ (до 768px) ===== */
-@media (max-width: 768px) {
-    .navbar-inner { 
-        flex-wrap: wrap; 
-        height: auto; 
-        padding: 10px 12px; 
-        gap: 8px; 
-    }
-    
-    .navbar-links { 
-        justify-content: center; 
-        gap: 4px;
-    }
-    
-    .nav-link { 
-        font-size: 13px; 
-        padding: 8px 12px; 
-        border-radius: 16px; 
-    }
-    
-    .navbar-brand { 
-        font-size: 17px; 
-    }
-    
-    .navbar-brand img { 
-        width: 34px; 
-        height: 34px; 
-    }
-    
-    .theme-btn { 
-        width: 36px; 
-        height: 36px; 
-        font-size: 18px; 
-    }
-    
-    .container { 
-        padding: 16px 14px; 
-    }
-    
-    .grid-2, .grid-3, .grid-4 { 
-        grid-template-columns: 1fr; 
-        gap: 14px; 
-    }
-    
-    .card { 
-        padding: 20px 16px; 
-        border-radius: 14px; 
-        margin-bottom: 14px; 
-    }
-    
-    .btn { 
-        padding: 14px 20px; 
-        font-size: 15px; 
-        border-radius: 14px; 
-        width: 100%; 
-    }
-    
-    .btn-primary {
-        width: 100%;
-    }
-    
-    /* ФОРМЫ — УВЕЛИЧЕНО */
-    .form-input, 
-    .form-select, 
-    .form-textarea {
-        padding: 14px 16px;
-        font-size: 16px;
-        border-radius: 12px;
-    }
-    
-    .form-input::placeholder {
-        font-size: 16px;
-    }
-    
-    /* ТАБЛИЦЫ */
-    .table { 
-        font-size: 14px; 
-    }
-    
-    .table th, 
-    .table td { 
-        padding: 10px 12px; 
-        font-size: 13px; 
-    }
-    
-    .table th { 
-        font-size: 12px; 
-    }
-    
-    /* КАРТОЧКИ АКЦИЙ — УВЕЛИЧЕНО */
-    .promo-card .promo-title {
-        font-size: 18px !important;
-    }
-    
-    .promo-card .promo-desc {
-        font-size: 14px !important;
-    }
-    
-    .promo-card .promo-date {
-        font-size: 13px !important;
-    }
-    
-    /* АЛЕРТЫ */
-    .alert {
-        padding: 14px 18px;
-        font-size: 15px;
-    }
-    
-    /* ФУТЕР */
-    .footer { 
-        padding: 24px 16px; 
-        font-size: 13px; 
-    }
-    
-    /* БЕЙДЖИ */
-    .badge {
-        padding: 5px 10px;
-        font-size: 12px;
-    }
-    
-    /* КНОПКА ТЕМЫ */
-    .theme-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 18px;
-    }
-}
-
-/* ===== МАЛЕНЬКИЕ ТЕЛЕФОНЫ (до 480px) ===== */
-@media (max-width: 480px) {
-    .navbar-brand span { 
-        font-size: 15px; 
-    }
-    
-    .nav-link { 
-        font-size: 12px; 
-        padding: 7px 10px; 
-    }
-    
-    .btn { 
-        font-size: 14px; 
-        padding: 12px 16px; 
-    }
-    
-    .card { 
-        padding: 16px 14px; 
-    }
-    
-    .form-input, 
-    .form-select, 
-    .form-textarea {
-        font-size: 15px;
-        padding: 12px 14px;
-    }
-    
-    /* ЗАГОЛОВКИ НА МОБИЛЬНЫХ */
-    h1 {
-        font-size: 24px !important;
-    }
-    
-    h2 {
-        font-size: 20px !important;
-    }
-    
-    h3 {
-        font-size: 17px !important;
-    }
-    
-    p, span, div {
-        word-break: break-word;
-    }
-}
+        .img-placeholder {
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 18px;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border);
+        }
+        
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--accent-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 24px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            .navbar-brand span { display: none; }
+            .nav-link { padding: 6px 10px; font-size: 12px; }
+        }
     </style>
     
     {% block head %}{% endblock %}
@@ -454,18 +389,20 @@
     <nav class="navbar">
         <div class="navbar-inner">
             <a href="{{ url_for('index') }}" class="navbar-brand">
-                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="SC" onerror="this.style.display='none'">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" 
+                     alt="SmileClinic"
+                     onerror="this.style.display='none'">
                 <span>SmileClinic</span>
             </a>
             
             <div class="navbar-links">
-                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
-                <a href="{{ url_for('reviews') }}" class="nav-link">Отзывы</a>
-                <a href="{{ url_for('promotions') }}" class="nav-link">Акции</a>
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">Главная</a>
+                <a href="{{ url_for('reviews') }}" class="nav-link {% if request.path == '/reviews' %}active{% endif %}">Отзывы</a>
+                <a href="{{ url_for('promotions') }}" class="nav-link {% if request.path == '/promotions' %}active{% endif %}">Акции</a>
+                
                 {% if current_user.is_authenticated %}
                     <a href="{{ url_for('dashboard') }}" class="nav-link">Кабинет</a>
                     <a href="{{ url_for('schedule') }}" class="nav-link">Расписание</a>
-                    <a href="{{ url_for('chat_list') }}" class="nav-link">Чат</a>
                     {% if current_user.role == 'patient' %}
                         <a href="{{ url_for('appointment') }}" class="nav-link">Запись</a>
                     {% endif %}
@@ -475,12 +412,15 @@
                     {% if current_user.role == 'admin' %}
                         <a href="{{ url_for('admin_panel') }}" class="nav-link">Админ</a>
                     {% endif %}
-                    <a href="{{ url_for('logout') }}" class="btn btn-danger" style="padding:5px 10px; font-size:12px;">Выйти</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-danger" style="padding:6px 16px; font-size:13px;">Выйти</a>
                 {% else %}
-                    <a href="{{ url_for('login') }}" class="btn">Войти</a>
-                    <a href="{{ url_for('register') }}" class="btn btn-primary">Регистрация</a>
+                    <a href="{{ url_for('login') }}" class="btn" style="padding:6px 16px; font-size:13px;">Войти</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-primary" style="padding:6px 16px; font-size:13px;">Регистрация</a>
                 {% endif %}
-                <button class="theme-btn" onclick="toggleTheme()" title="Сменить тему">🌙</button>
+                
+                <button class="theme-btn" onclick="toggleTheme()" title="Тема">
+                    <span class="theme-icon">🌙</span>
+                </button>
             </div>
         </div>
     </nav>
@@ -493,29 +433,38 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
+        
         {% block content %}{% endblock %}
     </div>
     
-    <footer class="footer">
-        <p style="font-weight:600; color:var(--text);">SmileClinic</p>
-        <p>&copy; 2024 SmileClinic</p>
-        <p>+7 (999) 123-45-67 · info@smileclinic.ru</p>
-    </footer>
+ <footer class="footer">
+    <div class="container">
+        <p style="font-weight:600; font-size:15px; color:var(--text);">SmileClinic</p>
+        <p>&copy; 2026 SmileClinic. Все права защищены.</p>
+        <p>+7 (993) 402-57-84 &nbsp;·&nbsp; renatafalyakhutdinos@gmail.com</p>
+    </div>
+</footer>
     
-   <script>
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    const themeBtn = document.querySelector('.theme-btn');
-    if (themeBtn) themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+    <script>
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon();
+        
+        function toggleTheme() {
+            const html = document.documentElement;
+            const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon();
+        }
+        
+        function updateThemeIcon() {
+            const icon = document.querySelector('.theme-icon');
+            if (icon) {
+                icon.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '☀️' : '🌙';
+            }
+        }
+    </script>
     
-    function toggleTheme() {
-        const html = document.documentElement;
-        const newTheme = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-        html.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme);
-        const btn = document.querySelector('.theme-btn');
-        if (btn) btn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-    }
-</script>
 </body>
 </html>
